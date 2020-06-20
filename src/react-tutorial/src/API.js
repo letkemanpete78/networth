@@ -2,29 +2,113 @@ import React, { Component } from 'react'
 
 class App extends Component {
     state = {
-        data: [],
+        assetDataShort: [],
+        assetDataLong: [],
+        assetTotal:0,
+        liabilityDataShort: [],
+        liabilityDataLong: [],
+        liabilityTotal:0,
     }
 
     componentDidMount(){
-        const url = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=Seona+Dancing&format=json&origin=*'
-    
-        fetch(url)
+
+        const urlShortAsset = 'http://localhost:8080/?category=short_term&type=asset'
+        const urlLongAsset = 'http://localhost:8080/?category=long_term&type=asset'
+        const urlShortLiability = 'http://localhost:8080/?category=short_term&type=liability'
+        const urlLongLiability = 'http://localhost:8080/?category=long_term&type=liability'
+        
+
+        fetch(urlShortAsset)
             .then(result => result.json())
             .then(result => {
                 this.setState({
-                    data: result,
+                    assetDataShort: result,
                 })
             })
+
+        fetch(urlLongAsset)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    assetDataLong: result,
+                })
+            })
+
+        fetch(urlShortLiability)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    liabilityDataShort: result,
+                })
+            })
+
+        fetch(urlLongLiability)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    liabilityDataLong: result,
+                })
+            })
+
     }
 
     render(){
-        const { data } = this.state
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
 
-        const result = data.map((entry, index) => {
-            return <li key={index}>{entry}</li>
+        const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2);
+        const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2);
+        var assetTotal = parseFloat(shortAssetsTotal) + parseFloat(longAssetsTotal);
+
+        const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2);
+        const longLiabilitysTotal = liabilityDataLong.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2);
+        var liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal);
+
+        const resultAssetShort = assetDataShort.map((entry, index) => {
+            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
         })
 
-        return <ul>{result}</ul>
+        const resultAssetLong = assetDataLong.map((entry, index) => {
+            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
+        })
+        
+        const resultLiabilityShort = liabilityDataShort.map((entry, index) => {
+            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
+        })
+
+        const resultLiabilityLong = liabilityDataLong.map((entry, index) => {
+            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
+        })
+
+        const AssetTable = () => {
+            return (
+                <table>
+                    <thead><tr><th>Assets</th></tr></thead>
+                    <tbody>
+                        <tr><td>Cash and Investments</td></tr>
+                        {resultAssetShort}
+                        <tr><td>Long Term Assets</td></tr>
+                        {resultAssetLong}
+                    </tbody>
+                    <tfoot><tr><td>Total Assets:</td><td>{assetTotal}</td></tr></tfoot>
+                </table>
+            )}
+        
+
+        const LiabilityTable = () => {
+            return (
+                <table>
+                    <thead><tr><th>Liabilities</th></tr></thead>
+                    <tbody>
+                        <tr><td>Short Term Liabilties</td></tr>
+                        {resultLiabilityShort}
+                        <tr><td>Long Term Debt</td></tr>
+                        {resultLiabilityLong}
+                    </tbody>
+                    <tfoot><tr><td>Total Liabilties</td><td>{liabilityTotal}</td></tr></tfoot>
+                </table>
+            )
+        }
+        return <div><AssetTable/> <LiabilityTable/></div>
     }
 }
 
