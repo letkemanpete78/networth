@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import EdiText from 'react-editext'
+
 
 class App extends Component {
     state = {
@@ -52,6 +54,15 @@ class App extends Component {
 
     }
 
+    onSave = val => {
+        console.log('Edited Value -> ', val)
+    }
+
+    sayHello(name,val) {
+        console.log(`hello, ${name}`);
+        console.log('Edited Value -> ', val)
+      }
+
     render(){
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
 
@@ -63,8 +74,25 @@ class App extends Component {
         const longLiabilitysTotal = liabilityDataLong.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2);
         var liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal);
 
+        const InlineEditor = props =>{
+            // https://github.com/Vargentum/react-editext
+            const {val,editName} = props
+            return (
+                    <EdiText
+                        type="number"
+                        inputProps={{
+                            name: editName
+                          }}
+                        value={String(val)}
+                        // onSave={v => console.log('SAVED: ', editName)}
+                        // onSave={this.onSave}
+                        onSave={v => this.sayHello("pete",v)}
+                    />
+            )
+        }
+
         const resultAssetShort = assetDataShort.map((entry, index) => {
-            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
+            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td> <InlineEditor val={entry.value} editName={entry.uuid}/>   </td></tr>
         })
 
         const resultAssetLong = assetDataLong.map((entry, index) => {
@@ -122,7 +150,8 @@ class App extends Component {
                 </select>
             )
         }
-        
+
+
 
         return <div><h1>Tracking your Networth</h1><div>Select Currency: <CurrencySelect currency="USD"/></div>Networth: <Networth/><div></div><AssetTable/> <LiabilityTable/></div>
     }
