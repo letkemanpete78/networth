@@ -79,6 +79,10 @@ class App extends Component {
             return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
         })
 
+        const Networth = () =>{
+            return (assetTotal - liabilityTotal)
+        }
+
         const AssetTable = () => {
             return (
                 <table>
@@ -108,7 +112,19 @@ class App extends Component {
                 </table>
             )
         }
-        return <div><AssetTable/> <LiabilityTable/></div>
+
+        const CurrencySelect = props => {
+            const { currency } = props.currency;
+            return (
+                <select value={currency} name="currency" >
+                    <option value="CAD">CAD</option>
+                    <option value="USD">USD</option>
+                </select>
+            )
+        }
+        
+
+        return <div><h1>Tracking your Networth</h1><div>Select Currency: <CurrencySelect currency="USD"/></div>Networth: <Networth/><div></div><AssetTable/> <LiabilityTable/></div>
     }
 }
 
