@@ -80,9 +80,6 @@ class App extends Component {
         let totalworth = totalAssets-totalLiability
         document.getElementById("networth").innerHTML = totalworth.toFixed(2);
 
-        console.log(`totalAssets, ${totalAssets}`);
-        console.log(`totalLiability, ${totalLiability}`);
-        console.log(`totalworth, ${totalworth}`);
 
         console.log(`hello, ${name}`);
         console.log('Edited Value -> ', val)
@@ -108,7 +105,8 @@ class App extends Component {
                         type="number"
                         viewProps={{
                             id: editName,
-                            className: "editView"
+                            className: "editView",
+                            float: "right"
                           }}
                         value={String(val)}
                         onSave={v => this.sayHello("pete",v)}
@@ -130,36 +128,41 @@ class App extends Component {
 
         const AssetTable = () => {
             return (
-                <table id="assetTable" border="1"> 
-                    <thead><tr><th colSpan="2">Assets</th></tr></thead>
+                <table id="assetTable"> 
+                    <thead><tr><th colSpan="3"><h4>Assets</h4></th></tr></thead>
                     <tbody>
-                        <tr><td colSpan="2">Cash and Investments</td></tr>
+                        <tr><td colSpan="3"><h5>Cash and Investments</h5></td></tr>
                         {resultAssetShort}
-                        <tr><td colSpan="2">Long Term Assets</td></tr>
+                        <tr><td colSpan="3"><h5>Long Term Assets</h5></td></tr>
                         {resultAssetLong}
                     </tbody>
-                    <tfoot><tr><td>Total Assets:</td><td id="assetTotal">{assetTotal.toFixed(2)}</td></tr></tfoot>
+                    <tfoot><tr><td><h4>Total Assets:</h4></td><td ><h4 align="right">$</h4></td><td id="assetTotal"><h4 style={{float:"right"}}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
                 </table>
             )}
-        
+
+        const ExtraSpacing = () => {
+            return (
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            )
+        }
 
         const LiabilityTable = () => {
             return (
                 <table id="liabilityTable">
-                    <thead><tr><th colSpan="2">Liabilities</th></tr></thead>
+                    <thead><tr><th colSpan="3"><h4>Liabilities</h4></th></tr></thead>
                     <tbody>
-                        <tr><td colSpan="2">Short Term Liabilties</td></tr>
+                        <tr><td colSpan="3"><h5>Short Term Liabilties</h5></td></tr>
                         {resultLiabilityShort}
-                        <tr><td colSpan="2">Long Term Debt</td></tr>
+                        <tr><td colSpan="3"><h5>Long Term Debt</h5></td></tr>
                         {resultLiabilityLong}
                     </tbody>
-                    <tfoot><tr><td>Total Liabilties</td><td id="liabilityTotal">{liabilityTotal.toFixed(2)}</td></tr></tfoot>
+                    <tfoot><tr><td><h4>Total Liabilties:</h4></td><td ><h4 align="right" >$</h4></td><td id="liabilityTotal"><h4 style={{float:"right"}}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
                 </table>
             )
         }
 
         const CurrencySelect = props => {
-            const { currency } = props.currency;
+            const { currency } = props;
             return (
                 <select value={currency} name="currency" >
                     <option value="CAD">CAD</option>
@@ -186,7 +189,7 @@ class App extends Component {
 
     newMoneyRows(assetDataShort, InlineEditor) {
         return assetDataShort.map((entry, index) => {
-            return <tr key={index}><td>{entry.type}-{entry.category}{entry.label}</td><td align="right"> <InlineEditor val={entry.value.toFixed(2)} editName={entry.uuid} />  </td></tr>
+            return <tr key={index}><td width="77%"><div>{entry.type}-{entry.category}{entry.label}</div></td><td width="3%" style={{float:"right"}}><div>$</div></td><td width="20%"><div style={{float:"right"}}><InlineEditor val={entry.value.toFixed(2)} editName={entry.uuid} /></div></td></tr>
         })
     }
 }
