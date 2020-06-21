@@ -4,19 +4,24 @@ import ca.letkeman.networth.model.Category;
 import ca.letkeman.networth.model.LineItem;
 import ca.letkeman.networth.model.Type;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(maxAge = 3600)
+@CrossOrigin(origins = "*")
 @RestController
 public class NetworthController {
 
@@ -25,6 +30,19 @@ public class NetworthController {
       @RequestParam(value = "lineItems[]") List<LineItem> lineItems) {
     return LineItem.calcNetworth(
         lineItems);
+  }
+
+  @CrossOrigin(origins = "*")
+  @PostMapping("/submitdata")
+  public String submitdata(@RequestBody String payload) {
+    System.out.println(payload);
+    try {
+      List<LineItem> lineItems = new ObjectMapper().readValue(payload, new TypeReference<List<LineItem>>() {});
+      System.out.println(lineItems);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+    return "server found";
   }
 
   @RequestMapping(value = "/", method = RequestMethod.GET, produces = {

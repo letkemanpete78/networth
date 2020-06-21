@@ -140,11 +140,11 @@ class App extends Component {
             })
     }
 
-    onSave = val => {
-        console.log('Edited Value -> ', val)
-    }
+    // onSave = val => {
+    //     console.log('Edited Value -> ', val)
+    // }
 
-    updateTotal(tablename, totaldiv) {
+    updateTableTotal(tablename, totaldiv) {
         let assets = document.getElementById(tablename)
         let assetValues = assets.getElementsByClassName("editView")
     
@@ -157,16 +157,45 @@ class App extends Component {
         return total;
     }
 
-    sayHello(name,val) {
-        let totalAssets = this.updateTotal("assetTable", "assetTotal");
-        let totalLiability = this.updateTotal("liabilityTable", "liabilityTotal");
+    updateNetworth(name,val) {
+        const urlFormPost = 'http://localhost:8080/submitdata'
+
+        let totalAssets = this.updateTableTotal("assetTable", "assetTotal");
+        let totalLiability = this.updateTableTotal("liabilityTable", "liabilityTotal");
         let totalworth = totalAssets-totalLiability
         document.getElementById("networth").innerHTML = totalworth.toFixed(2);
 
-        console.log(`hello, ${name}`);
-        console.log('Edited Value -> ', val)
+        var dataToSend = this.getDataItems("assetTable");
+        dataToSend.push(...this.getDataItems("liabilityTable"));
 
+        fetch(urlFormPost, {
+            method: 'POST',
+            body: JSON.stringify(dataToSend),
+        });
+        
+
+       
       }
+
+      getDataItems(tableName) {
+        var dataToSend1 = [];
+        let assets = document.getElementById(tableName)
+        var domItems = assets.querySelectorAll("[dataname]")
+    
+        var records
+        var uuid;
+        var label;
+        var value;
+        domItems.forEach(function (userItem) {
+            records = userItem.getAttribute("dataname").toUpperCase().split("DATA");
+            uuid = userItem.id.replace("edit-", "");
+            label = userItem.innerHTML;
+            value = document.getElementById(uuid).innerHTML;
+            var rec = { uuid: uuid, type: records[0], category: records[1] +"_TERM", label: label, value: value };
+            dataToSend1.push(rec);
+        });
+        return dataToSend1;
+    }
       
 
     render(){
@@ -182,16 +211,17 @@ class App extends Component {
 
         const InlineEditor = props =>{
             // https://github.com/Vargentum/react-editext
-            const {val,elmClass,elmType,elmID} = props
+            const {val,elmClass,elmType,elmID, dsName} = props
             return (
                     <EdiText
                         type={elmType}
                         viewProps={{
                             id: elmID,
                             className: elmClass,
+                            dataname: dsName,
                         }}
                         value={String(val)}
-                        onSave={v => this.sayHello("pete",v)}
+                        onSave={v => this.updateNetworth("pete",v)}
                     />
             )
         }
@@ -324,7 +354,7 @@ class App extends Component {
         return assetDataShort.map((entry, index) => {
             return <tr key={index}>
                 <td width="60%">
-                    <InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} />
+                    <InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} />
                 </td>
                 <td width="3%" style={{ lineHeight:"3"}} valign="bottom"><div>$</div></td>
                 <td width="37%">
@@ -341,3 +371,5 @@ class App extends Component {
 }
 
 export default App
+
+
