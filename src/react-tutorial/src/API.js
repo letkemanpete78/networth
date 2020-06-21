@@ -12,16 +12,6 @@ class App extends Component {
         liabilityTotal:0,
     }
 
-    // removeRow = index => {
-    //     const { assetDataShort } = this.state
-      
-    //     this.setState({
-    //         assetDataShort: assetDataShort.filter((row, i) => {
-    //         return i !== index
-    //       }),
-    //     })
-    //   }
-
     removeRow = (index,dataset) => {
         const { assetDataShort ,assetDataLong,liabilityDataShort,liabilityDataLong} = this.state
 
@@ -56,6 +46,16 @@ class App extends Component {
             })
         }
     }
+
+    handleAddRow = () => {
+        const item = {
+          label: "",
+          value: 0
+        };
+        this.setState({
+            assetDataShort: [...this.state.assetDataShort, item]
+        });
+      };
 
     componentDidMount(){
 
@@ -131,6 +131,8 @@ class App extends Component {
 
       }
 
+      
+
     render(){
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
 
@@ -177,8 +179,19 @@ class App extends Component {
                     <tbody>
                         <tr><td colSpan="3"><h5>Cash and Investments</h5></td></tr>
                         {resultAssetShort}
+                        <tr><td>
+                            <button
+                            onClick={this.handleAddRow}
+                            className="btn btn-default pull-left"
+                        >
+                            Add Row
+                        </button>
+                        </td></tr>
                         <tr><td colSpan="3"><h5>Long Term Assets</h5></td></tr>
                         {resultAssetLong}
+
+                        
+
                     </tbody>
                     <tfoot><tr><td><h4>Total Assets:</h4></td><td valign="middle"><h4>$</h4></td><td id="assetTotal"><h4 style={{float:"right"}}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
                 </table>
