@@ -99,15 +99,13 @@ class App extends Component {
 
         const InlineEditor = props =>{
             // https://github.com/Vargentum/react-editext
-            const {val,editName} = props
+            const {val,elmClass,elmType} = props
             return (
                     <EdiText
-                        type="number"
+                        type={elmType}
                         viewProps={{
-                            id: editName,
-                            className: "editView",
-                            float: "right"
-                          }}
+                            className: elmClass,
+                        }}
                         value={String(val)}
                         onSave={v => this.sayHello("pete",v)}
                     />
@@ -136,7 +134,7 @@ class App extends Component {
                         <tr><td colSpan="3"><h5>Long Term Assets</h5></td></tr>
                         {resultAssetLong}
                     </tbody>
-                    <tfoot><tr><td><h4>Total Assets:</h4></td><td ><h4 align="right">$</h4></td><td id="assetTotal"><h4 style={{float:"right"}}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
+                    <tfoot><tr><td><h4>Total Assets:</h4></td><td valign="middle"><h4>$</h4></td><td id="assetTotal"><h4 style={{float:"right"}}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
                 </table>
             )}
 
@@ -156,15 +154,14 @@ class App extends Component {
                         <tr><td colSpan="3"><h5>Long Term Debt</h5></td></tr>
                         {resultLiabilityLong}
                     </tbody>
-                    <tfoot><tr><td><h4>Total Liabilties:</h4></td><td ><h4 align="right" >$</h4></td><td id="liabilityTotal"><h4 style={{float:"right"}}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
+                    <tfoot><tr><td><h4>Total Liabilties:</h4></td><td valign="middle"><h4  >$</h4></td><td id="liabilityTotal"><h4 style={{float:"right"}}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
                 </table>
             )
         }
 
-        const CurrencySelect = props => {
-            const { currency } = props;
+        const CurrencySelect = () => {
             return (
-                <select value={currency} name="currency" >
+                <select name="currency" onChange={this.currencyChange}>
                     <option value="CAD">CAD</option>
                     <option value="USD">USD</option>
                 </select>
@@ -175,7 +172,7 @@ class App extends Component {
             return (
                 <div>
                     <h1>Tracking your Networth</h1>
-                    <div>Select Currency: <CurrencySelect currency="USD"/></div>
+                    <div>Select Currency: <CurrencySelect /></div>
                     Networth: <div id="networth" style={{display:"inline"}}><CalcNetworth/></div>
                     <AssetTable/>
                     <LiabilityTable/>
@@ -187,9 +184,13 @@ class App extends Component {
         return <MainTable/>
     }
 
+    currencyChange(event) {
+        console.log(event.target.value);
+      }
+
     newMoneyRows(assetDataShort, InlineEditor) {
         return assetDataShort.map((entry, index) => {
-            return <tr key={index}><td width="77%"><div>{entry.type}-{entry.category}{entry.label}</div></td><td width="3%" style={{float:"right"}}><div>$</div></td><td width="20%"><div style={{float:"right"}}><InlineEditor val={entry.value.toFixed(2)} editName={entry.uuid} /></div></td></tr>
+            return <tr key={index}><td width="77%"><InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" /></td><td width="3%" style={{ lineHeight:"3"}} valign="bottom"><div>$</div></td><td width="20%"><div style={{float:"right"}}><InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" /></div></td></tr>
         })
     }
 }
