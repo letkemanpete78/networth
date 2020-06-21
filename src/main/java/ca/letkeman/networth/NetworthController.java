@@ -51,24 +51,24 @@ public class NetworthController {
     for (int i = 1; i < 6; i++) {
       lineItems.add(
           new LineItem(UUID.randomUUID().toString(), Type.ASSET, Category.SHORT_TERM, "label " + i,
-              (float) (10.01 * i)));
+              (float) (10.01 * i*i)));
     }
     for (int i = 6; i < 11; i++) {
       lineItems.add(
           new LineItem(UUID.randomUUID().toString(), Type.ASSET, Category.LONG_TERM, "label " + i,
-              (float) (10.01 * i)));
+              (float) (10.01 * i*i)));
     }
     for (int i = 11; i < 16; i++) {
       lineItems.add(
           new LineItem(UUID.randomUUID().toString(), Type.LIABILITY, Category.SHORT_TERM,
               "label " + i,
-              (float) (10.01 * i)));
+              (float) (10.01 * i*i)));
     }
     for (int i = 16; i < 21; i++) {
       lineItems.add(
           new LineItem(UUID.randomUUID().toString(), Type.LIABILITY, Category.LONG_TERM,
               "label " + i,
-              (float) (10.01 * i)));
+              (float) (10.01 * i*i)));
     }
     return lineItems;
   }
