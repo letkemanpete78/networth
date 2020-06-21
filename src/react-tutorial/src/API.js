@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import EdiText from 'react-editext'
+import uuid from 'react-uuid'
 
 
 class App extends Component {
@@ -47,15 +48,57 @@ class App extends Component {
         }
     }
 
-    handleAddRow = () => {
+    handleAddAssetShortRow = () => {
         const item = {
           label: "",
-          value: 0
+          value: 0.00,
+          uuid: uuid(),
+          type: "asset",
+          category: "short_term"
         };
         this.setState({
             assetDataShort: [...this.state.assetDataShort, item]
         });
-      };
+    };
+    
+    handleAddAssetLongRow = () => {
+        const item = {
+          label: "",
+          value: 0.00,
+          uuid: uuid(),
+          type: "asset",
+          category: "long_term"
+        };
+        this.setState({
+            assetDataLong: [...this.state.assetDataLong, item]
+        });
+    };
+      
+    handleAddLiabilityShortRow = () => {
+        const item = {
+          label: "",
+          value: 0.00,
+          uuid: uuid(),
+          type: "liability",
+          category: "short_term"
+        };
+        this.setState({
+            liabilityDataShort: [...this.state.liabilityDataShort, item]
+        });
+    };
+      
+    handleAddLiabilityLongRow = () => {
+        const item = {
+          label: "",
+          value: 0.00,
+          uuid: uuid(),
+          type: "liability",
+          category: "long_term"
+        };
+        this.setState({
+            liabilityDataLong: [...this.state.liabilityDataLong, item]
+        });
+    };
 
     componentDidMount(){
 
@@ -63,10 +106,6 @@ class App extends Component {
         const urlLongAsset = 'http://localhost:8080/?category=long_term&type=asset'
         const urlShortLiability = 'http://localhost:8080/?category=short_term&type=liability'
         const urlLongLiability = 'http://localhost:8080/?category=long_term&type=liability'
-        
-
-       
-
 
         fetch(urlShortAsset)
             .then(result => result.json())
@@ -99,7 +138,6 @@ class App extends Component {
                     liabilityDataLong: result,
                 })
             })
-
     }
 
     onSave = val => {
@@ -125,12 +163,10 @@ class App extends Component {
         let totalworth = totalAssets-totalLiability
         document.getElementById("networth").innerHTML = totalworth.toFixed(2);
 
-
         console.log(`hello, ${name}`);
         console.log('Edited Value -> ', val)
 
       }
-
       
 
     render(){
@@ -179,29 +215,36 @@ class App extends Component {
                     <tbody>
                         <tr><td colSpan="3"><h5>Cash and Investments</h5></td></tr>
                         {resultAssetShort}
-                        <tr><td>
-                            <button
-                            onClick={this.handleAddRow}
-                            className="btn btn-default pull-left"
-                        >
-                            Add Row
-                        </button>
-                        </td></tr>
+                        <tr>
+                            <td>
+                                <button
+                                    onClick={this.handleAddAssetShortRow}
+                                    className="btn btn-default pull-left">
+                                    Add Short Term Asset
+                                </button>
+                            </td>
+                        </tr>
                         <tr><td colSpan="3"><h5>Long Term Assets</h5></td></tr>
                         {resultAssetLong}
-
-                        
-
+                        <tr>
+                            <td>
+                                <button
+                                    onClick={this.handleAddAssetLongRow}
+                                    className="btn btn-default pull-left">
+                                    Add Long Term Asset
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
-                    <tfoot><tr><td><h4>Total Assets:</h4></td><td valign="middle"><h4>$</h4></td><td id="assetTotal"><h4 style={{float:"right"}}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
+                    <tfoot>
+                        <tr>
+                            <td><h4>Total Assets:</h4></td>
+                            <td valign="middle"><h4>$</h4></td>
+                            <td id="assetTotal"><h4 style={{float:"right"}}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td>
+                        </tr>
+                    </tfoot>
                 </table>
             )}
-
-        const ExtraSpacing = () => {
-            return (
-                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            )
-        }
 
         const LiabilityTable = () => {
             return (
@@ -210,11 +253,41 @@ class App extends Component {
                     <tbody>
                         <tr><td colSpan="3"><h5>Short Term Liabilties</h5></td></tr>
                         {resultLiabilityShort}
+                        <tr>
+                            <td>
+                                <button
+                                    onClick={this.handleAddLiabilityShortRow}
+                                    className="btn btn-default pull-left">
+                                    Add Short Term Liability
+                                </button>
+                            </td>
+                        </tr>
                         <tr><td colSpan="3"><h5>Long Term Debt</h5></td></tr>
                         {resultLiabilityLong}
+                        <tr>
+                            <td>
+                                <button
+                                    onClick={this.handleAddLiabilityLongRow}
+                                    className="btn btn-default pull-left">
+                                    Add Long Term Debt
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
-                    <tfoot><tr><td><h4>Total Liabilties:</h4></td><td valign="middle"><h4  >$</h4></td><td id="liabilityTotal"><h4 style={{float:"right"}}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td></tr></tfoot>
+                    <tfoot>
+                        <tr>
+                            <td><h4>Total Liabilties:</h4></td>
+                            <td valign="middle"><h4>$</h4></td>
+                            <td id="liabilityTotal"><h4 style={{float:"right"}}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td>
+                        </tr>
+                    </tfoot>
                 </table>
+            )
+        }
+
+        const ExtraSpacing = () => {
+            return (
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             )
         }
 
@@ -249,11 +322,22 @@ class App extends Component {
 
     newMoneyRows(assetDataShort, InlineEditor,dataSetName) {
         return assetDataShort.map((entry, index) => {
-            return <tr key={index}><td width="77%"><InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} /></td><td width="3%" style={{ lineHeight:"3"}} valign="bottom"><div>$</div></td><td width="20%"><div style={{float:"right"}}><InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid}/></div></td><td><button onClick={() => this.removeRow(index,dataSetName)}>X</button></td></tr>
+            return <tr key={index}>
+                <td width="60%">
+                    <InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} />
+                </td>
+                <td width="3%" style={{ lineHeight:"3"}} valign="bottom"><div>$</div></td>
+                <td width="37%">
+                    <div style={{float:"right"}}>
+                        <InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid}/>
+                    </div>
+                </td>
+                <td>
+                    <button onClick={() => this.removeRow(index,dataSetName)}>X</button>
+                </td>
+            </tr>
         })
     }
 }
 
 export default App
-
-
