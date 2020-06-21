@@ -12,6 +12,51 @@ class App extends Component {
         liabilityTotal:0,
     }
 
+    // removeRow = index => {
+    //     const { assetDataShort } = this.state
+      
+    //     this.setState({
+    //         assetDataShort: assetDataShort.filter((row, i) => {
+    //         return i !== index
+    //       }),
+    //     })
+    //   }
+
+    removeRow = (index,dataset) => {
+        const { assetDataShort ,assetDataLong,liabilityDataShort,liabilityDataLong} = this.state
+
+      
+        if (dataset==="assetDataShort") {
+            this.setState({
+                assetDataShort: assetDataShort.filter((row, i) => {
+                return i !== index
+                }),
+        
+            })
+        } else if (dataset==="assetDataLong") {
+            this.setState({
+                assetDataLong: assetDataLong.filter((row, i) => {
+                return i !== index
+                }),
+        
+            })
+        } else if (dataset==="liabilityDataShort") {
+            this.setState({
+                liabilityDataShort: liabilityDataShort.filter((row, i) => {
+                return i !== index
+                }),
+        
+            })
+        } else  {
+            this.setState({
+                liabilityDataLong: liabilityDataLong.filter((row, i) => {
+                return i !== index
+                }),
+        
+            })
+        }
+    }
+
     componentDidMount(){
 
         const urlShortAsset = 'http://localhost:8080/?category=short_term&type=asset'
@@ -99,11 +144,12 @@ class App extends Component {
 
         const InlineEditor = props =>{
             // https://github.com/Vargentum/react-editext
-            const {val,elmClass,elmType} = props
+            const {val,elmClass,elmType,elmID} = props
             return (
                     <EdiText
                         type={elmType}
                         viewProps={{
+                            id: elmID,
                             className: elmClass,
                         }}
                         value={String(val)}
@@ -112,13 +158,13 @@ class App extends Component {
             )
         }
 
-        const resultAssetShort = this.newMoneyRows(assetDataShort, InlineEditor)
+        const resultAssetShort = this.newMoneyRows(assetDataShort, InlineEditor,"assetDataShort")
 
-        const resultAssetLong = this.newMoneyRows(assetDataLong, InlineEditor)
+        const resultAssetLong = this.newMoneyRows(assetDataLong, InlineEditor,"assetDataLong")
         
-        const resultLiabilityShort = this.newMoneyRows(liabilityDataShort, InlineEditor)
+        const resultLiabilityShort = this.newMoneyRows(liabilityDataShort, InlineEditor,"liabilityDataShort")
 
-        const resultLiabilityLong =  this.newMoneyRows(liabilityDataLong, InlineEditor)
+        const resultLiabilityLong =  this.newMoneyRows(liabilityDataLong, InlineEditor,"liabilityDataLong")
 
         const CalcNetworth = () =>{
             return (assetTotal - liabilityTotal).toFixed(2)
@@ -188,9 +234,9 @@ class App extends Component {
         console.log(event.target.value);
       }
 
-    newMoneyRows(assetDataShort, InlineEditor) {
+    newMoneyRows(assetDataShort, InlineEditor,dataSetName) {
         return assetDataShort.map((entry, index) => {
-            return <tr key={index}><td width="77%"><InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" /></td><td width="3%" style={{ lineHeight:"3"}} valign="bottom"><div>$</div></td><td width="20%"><div style={{float:"right"}}><InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" /></div></td></tr>
+            return <tr key={index}><td width="77%"><InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} /></td><td width="3%" style={{ lineHeight:"3"}} valign="bottom"><div>$</div></td><td width="20%"><div style={{float:"right"}}><InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid}/></div></td><td><button onClick={() => this.removeRow(index,dataSetName)}>X</button></td></tr>
         })
     }
 }
