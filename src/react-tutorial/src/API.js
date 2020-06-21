@@ -20,6 +20,9 @@ class App extends Component {
         const urlLongLiability = 'http://localhost:8080/?category=long_term&type=liability'
         
 
+       
+
+
         fetch(urlShortAsset)
             .then(result => result.json())
             .then(result => {
@@ -58,9 +61,32 @@ class App extends Component {
         console.log('Edited Value -> ', val)
     }
 
+    updateTotal(tablename, totaldiv) {
+        let assets = document.getElementById(tablename)
+        let assetValues = assets.getElementsByClassName("editView")
+    
+        var i
+        var total = 0
+        for (i = 0; i < assetValues.length; i++) {
+            total += parseFloat(assetValues[i].innerHTML)
+        }
+        document.getElementById(totaldiv).innerHTML = total.toFixed(2);
+        return total;
+    }
+
     sayHello(name,val) {
+        let totalAssets = this.updateTotal("assetTable", "assetTotal");
+        let totalLiability = this.updateTotal("liabilityTable", "liabilityTotal");
+        let totalworth = totalAssets-totalLiability
+        document.getElementById("networth").innerHTML = totalworth.toFixed(2);
+
+        console.log(`totalAssets, ${totalAssets}`);
+        console.log(`totalLiability, ${totalLiability}`);
+        console.log(`totalworth, ${totalworth}`);
+
         console.log(`hello, ${name}`);
         console.log('Edited Value -> ', val)
+
       }
 
     render(){
@@ -80,63 +106,54 @@ class App extends Component {
             return (
                     <EdiText
                         type="number"
-                        inputProps={{
-                            name: editName
+                        viewProps={{
+                            id: editName,
+                            className: "editView"
                           }}
                         value={String(val)}
-                        // onSave={v => console.log('SAVED: ', editName)}
-                        // onSave={this.onSave}
                         onSave={v => this.sayHello("pete",v)}
                     />
             )
         }
 
-        const resultAssetShort = assetDataShort.map((entry, index) => {
-            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td> <InlineEditor val={entry.value} editName={entry.uuid}/>   </td></tr>
-        })
+        const resultAssetShort = this.newMoneyRows(assetDataShort, InlineEditor)
 
-        const resultAssetLong = assetDataLong.map((entry, index) => {
-            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
-        })
+        const resultAssetLong = this.newMoneyRows(assetDataLong, InlineEditor)
         
-        const resultLiabilityShort = liabilityDataShort.map((entry, index) => {
-            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
-        })
+        const resultLiabilityShort = this.newMoneyRows(liabilityDataShort, InlineEditor)
 
-        const resultLiabilityLong = liabilityDataLong.map((entry, index) => {
-            return <tr key={index} uuid={entry.uuid}><td>{entry.type}-{entry.category}{entry.label}</td><td>{entry.value}</td></tr>
-        })
+        const resultLiabilityLong =  this.newMoneyRows(liabilityDataLong, InlineEditor)
 
-        const Networth = () =>{
-            return (assetTotal - liabilityTotal)
+        const CalcNetworth = () =>{
+            return (assetTotal - liabilityTotal).toFixed(2)
         }
 
         const AssetTable = () => {
             return (
-                <table>
-                    <thead><tr><th>Assets</th></tr></thead>
+                <table id="assetTable" border="1"> 
+                    <thead><tr><th colSpan="2">Assets</th></tr></thead>
                     <tbody>
-                        <tr><td>Cash and Investments</td></tr>
+                        <tr><td colSpan="2">Cash and Investments</td></tr>
                         {resultAssetShort}
-                        <tr><td>Long Term Assets</td></tr>
+                        <tr><td colSpan="2">Long Term Assets</td></tr>
                         {resultAssetLong}
                     </tbody>
-                    <tfoot><tr><td>Total Assets:</td><td>{assetTotal}</td></tr></tfoot>
+                    <tfoot><tr><td>Total Assets:</td><td id="assetTotal">{assetTotal.toFixed(2)}</td></tr></tfoot>
                 </table>
             )}
         
 
         const LiabilityTable = () => {
             return (
-                <table>
-                    <thead><tr><th>Liabilities</th></tr></thead>
+                <table id="liabilityTable">
+                    <thead><tr><th colSpan="2">Liabilities</th></tr></thead>
                     <tbody>
-                        <tr><td>Short Term Liabilties</td></tr>
+                        <tr><td colSpan="2">Short Term Liabilties</td></tr>
                         {resultLiabilityShort}
-                        <tr><td>Long Term Debt</td></tr>
+                        <tr><td colSpan="2">Long Term Debt</td></tr>
                         {resultLiabilityLong}
                     </tbody>
-                    <tfoot><tr><td>Total Liabilties</td><td>{liabilityTotal}</td></tr></tfoot>
+                    <tfoot><tr><td>Total Liabilties</td><td id="liabilityTotal">{liabilityTotal.toFixed(2)}</td></tr></tfoot>
                 </table>
             )
         }
@@ -151,10 +168,29 @@ class App extends Component {
             )
         }
 
+        const MainTable = () => {
+            return (
+                <div>
+                    <h1>Tracking your Networth</h1>
+                    <div>Select Currency: <CurrencySelect currency="USD"/></div>
+                    Networth: <div id="networth" style={{display:"inline"}}><CalcNetworth/></div>
+                    <AssetTable/>
+                    <LiabilityTable/>
+                </div>
+            )
+        }
 
 
-        return <div><h1>Tracking your Networth</h1><div>Select Currency: <CurrencySelect currency="USD"/></div>Networth: <Networth/><div></div><AssetTable/> <LiabilityTable/></div>
+        return <MainTable/>
+    }
+
+    newMoneyRows(assetDataShort, InlineEditor) {
+        return assetDataShort.map((entry, index) => {
+            return <tr key={index}><td>{entry.type}-{entry.category}{entry.label}</td><td align="right"> <InlineEditor val={entry.value.toFixed(2)} editName={entry.uuid} />  </td></tr>
+        })
     }
 }
 
 export default App
+
+
