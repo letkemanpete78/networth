@@ -33,26 +33,25 @@ public class LineItem {
     this.value = value;
   }
 
-
-  public static float sumLiabilities(List<LineItem> lineItems) {
-    return sumLineItems(
-        lineItems.stream().filter(x -> x.type.equals(Type.LIABILITY)).collect(Collectors.toList()),
-        Type.LIABILITY);
-  }
-
-  public static float sumAssets(List<LineItem> lineItems) {
-    return sumLineItems(
-        lineItems.stream().filter(x -> x.type.equals(Type.ASSET)).collect(Collectors.toList()),
-        Type.ASSET);
-  }
-
-  private static float sumLineItems(List<LineItem> lineItems, Type type) {
-    float retval = 0;
-    for (LineItem lineItem : lineItems) {
-      retval += lineItem.value;
-    }
-    return retval;
-  }
+//  public static float sumLiabilities(List<LineItem> lineItems) {
+//    return sumLineItems(
+//        lineItems.stream().filter(x -> x.type.equals(Type.LIABILITY)).collect(Collectors.toList()),
+//        Type.LIABILITY);
+//  }
+//
+//  public static float sumAssets(List<LineItem> lineItems) {
+//    return sumLineItems(
+//        lineItems.stream().filter(x -> x.type.equals(Type.ASSET)).collect(Collectors.toList()),
+//        Type.ASSET);
+//  }
+//
+//  private static float sumLineItems(List<LineItem> lineItems, Type type) {
+//    float retval = 0;
+//    for (LineItem lineItem : lineItems) {
+//      retval += lineItem.value;
+//    }
+//    return retval;
+//  }
 
   public Integer getId() {
     return id;

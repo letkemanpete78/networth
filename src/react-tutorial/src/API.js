@@ -140,10 +140,6 @@ class App extends Component {
             })
     }
 
-    // onSave = val => {
-    //     console.log('Edited Value -> ', val)
-    // }
-
     updateTableTotal(tablename, totaldiv) {
         let assets = document.getElementById(tablename)
         let assetValues = assets.getElementsByClassName("editView")
@@ -172,12 +168,9 @@ class App extends Component {
             method: 'POST',
             body: JSON.stringify(dataToSend),
         });
-        
+    }
 
-       
-      }
-
-      getDataItems(tableName) {
+    getDataItems(tableName) {
         var dataToSend1 = [];
         let assets = document.getElementById(tableName)
         var domItems = assets.querySelectorAll("[dataname]")
@@ -342,7 +335,6 @@ class App extends Component {
             )
         }
 
-
         return <MainTable/>
     }
 
@@ -371,5 +363,4 @@ class App extends Component {
 }
 
 export default App
-
 
