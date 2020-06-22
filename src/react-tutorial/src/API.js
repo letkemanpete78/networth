@@ -15,37 +15,60 @@ class App extends Component {
 
     removeRow = (index,dataset) => {
         const { assetDataShort ,assetDataLong,liabilityDataShort,liabilityDataLong} = this.state
+        const urlFormPost = 'http://localhost:8080/deletedata'
 
-      
+        var deleteUUID = ''
         if (dataset==="assetDataShort") {
             this.setState({
                 assetDataShort: assetDataShort.filter((row, i) => {
-                return i !== index
+                    if (i === index){
+                        deleteUUID = assetDataShort[i].uuid;
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }),
-        
             })
         } else if (dataset==="assetDataLong") {
             this.setState({
                 assetDataLong: assetDataLong.filter((row, i) => {
-                return i !== index
+                    if (i === index){
+                        deleteUUID =assetDataLong[i].uuid;
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }),
-        
             })
         } else if (dataset==="liabilityDataShort") {
             this.setState({
                 liabilityDataShort: liabilityDataShort.filter((row, i) => {
-                return i !== index
+                    if (i === index){
+                        deleteUUID = liabilityDataShort[i].uuid;
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }),
-        
             })
         } else  {
             this.setState({
                 liabilityDataLong: liabilityDataLong.filter((row, i) => {
-                return i !== index
+                    if (i === index){
+                        deleteUUID = liabilityDataLong[i].uuid;
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }),
-        
             })
         }
+
+        fetch(urlFormPost, {
+            method: 'POST',
+            body: JSON.stringify(deleteUUID),
+        });
+        console.log(deleteUUID);
     }
 
     handleAddAssetShortRow = () => {
