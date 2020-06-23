@@ -5,7 +5,7 @@ public enum Category {
   SHORT_TERM("short_term"),
   LONG_TERM ("long_term");
 
-  private String label;
+  private final String label;
   Category(String s) {
     label = s;
   }

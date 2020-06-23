@@ -118,16 +118,15 @@ public class NetworthController {
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }
-    List<String> uuidList = lineItems.stream().map(x -> x.getUuid()).collect(Collectors.toList());
+    List<String> uuidList = lineItems.stream().map(LineItem::getUuid).collect(Collectors.toList());
     List<LineItem> foundItems = lineItemRepository.findByuuidIn(uuidList);
     List<LineItem> updateItems = lineItems.stream()
-        .map(x -> {
+        .peek(x -> {
           for (LineItem y : foundItems) {
             if (y.getUuid().equals(x.getUuid())) {
               x.setId(y.getId());
             }
           }
-          return x;
         })
         .collect(Collectors.toList());
     lineItemRepository.saveAll(updateItems);
