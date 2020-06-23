@@ -11,10 +11,11 @@ class App extends Component {
         liabilityDataShort: [],
         liabilityDataLong: [],
         liabilityTotal:0,
+        moneySymbols:[],
     }
 
     removeRow = (index,dataset) => {
-        const { assetDataShort ,assetDataLong,liabilityDataShort,liabilityDataLong} = this.state
+        const { assetDataShort ,assetDataLong,liabilityDataShort,liabilityDataLong } = this.state
         const urlFormPost = 'http://localhost:8080/deletedata'
 
         var deleteUUID = ''
@@ -129,6 +130,15 @@ class App extends Component {
         const urlLongAsset = 'http://localhost:8080/?category=long_term&type=asset'
         const urlShortLiability = 'http://localhost:8080/?category=short_term&type=liability'
         const urlLongLiability = 'http://localhost:8080/?category=long_term&type=liability'
+        const urlCurrencies = 'http://localhost:8080/currencies'
+
+        fetch(urlCurrencies)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    moneySymbols: result,
+                })
+            })
 
         fetch(urlShortAsset)
             .then(result => result.json())
@@ -161,6 +171,7 @@ class App extends Component {
                     liabilityDataLong: result,
                 })
             })
+
     }
 
     updateTableTotal(tablename, totaldiv) {
@@ -215,7 +226,7 @@ class App extends Component {
       
 
     render(){
-        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols} = this.state
 
         const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2);
         const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2);
@@ -338,12 +349,19 @@ class App extends Component {
         }
 
         const CurrencySelect = () => {
+            const { moneySymbols } = this.state;
+
+            let moneyOptions = moneySymbols.map((item, i) => {
+                return (
+                    <option key={i} value={item.symbol}>{item.symbol}</option>
+                )
+            }, this);
+
             return (
-                <select name="currency" onChange={this.currencyChange}>
-                    <option value="CAD">CAD</option>
-                    <option value="USD">USD</option>
+                <select name="currency" onChange={(e) => this.currencyChange(e,moneySymbols)}>
+                    {moneyOptions}
                 </select>
-            )
+            );
         }
 
         const MainTable = () => {
@@ -361,8 +379,9 @@ class App extends Component {
         return <MainTable/>
     }
 
-    currencyChange(event) {
+    currencyChange(event,moneySymbols) {
         console.log(event.target.value);
+        console.log(moneySymbols);
       }
 
     newMoneyRows(assetDataShort, InlineEditor,dataSetName) {
