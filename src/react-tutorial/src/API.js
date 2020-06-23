@@ -194,7 +194,7 @@ class App extends Component {
             })
     }
 
-    updateTableTotal(tablename, totaldiv) {
+    updateTableTotal(tablename, totalspan) {
         let assets = document.getElementById(tablename)
         let assetValues = assets.getElementsByClassName("editView")
     
@@ -203,7 +203,7 @@ class App extends Component {
         for (i = 0; i < assetValues.length; i++) {
             total += parseFloat(assetValues[i].innerHTML)
         }
-        document.getElementById(totaldiv).innerHTML = total.toFixed(2);
+        document.getElementById(totalspan).innerHTML =  total.toFixed(2);
         return total;
     }
 
@@ -257,7 +257,6 @@ class App extends Component {
         var liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal);
 
         const InlineEditor = props =>{
-            // https://github.com/Vargentum/react-editext
             return this.createInlineEditor(props)
         }
 
@@ -352,7 +351,7 @@ class App extends Component {
                 <tr>
                     <td><h4>Total Liabilties:</h4></td>
                     <td valign="middle"><h4>$</h4></td>
-                    <td id="liabilityTotal"><h4 style={{ float: "right" }}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td>
+                    <td ><h4 style={{ float: "right" }}><span id="liabilityTotal">{liabilityTotal.toFixed(2)}</span><ExtraSpacing /></h4></td>
                 </tr>
             </tfoot>
         </table>
@@ -389,13 +388,14 @@ class App extends Component {
                 <tr>
                     <td><h4>Total Assets:</h4></td>
                     <td valign="middle"><h4>$</h4></td>
-                    <td id="assetTotal"><h4 style={{ float: "right" }}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td>
+                    <td><h4 style={{ float: "right" }}><span id="assetTotal">{assetTotal.toFixed(2)}</span><ExtraSpacing /></h4></td>
                 </tr>
             </tfoot>
         </table>
     }
 
     createInlineEditor(props) {
+        // https://github.com/Vargentum/react-editext
         const { val, elmClass, elmType, elmID, dsName } = props
         return (
             <EdiText
