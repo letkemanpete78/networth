@@ -1,12 +1,10 @@
 package ca.letkeman.networth.model;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @Entity
 public class LineItem {
@@ -32,26 +30,6 @@ public class LineItem {
     this.label = label;
     this.value = value;
   }
-
-//  public static float sumLiabilities(List<LineItem> lineItems) {
-//    return sumLineItems(
-//        lineItems.stream().filter(x -> x.type.equals(Type.LIABILITY)).collect(Collectors.toList()),
-//        Type.LIABILITY);
-//  }
-//
-//  public static float sumAssets(List<LineItem> lineItems) {
-//    return sumLineItems(
-//        lineItems.stream().filter(x -> x.type.equals(Type.ASSET)).collect(Collectors.toList()),
-//        Type.ASSET);
-//  }
-//
-//  private static float sumLineItems(List<LineItem> lineItems, Type type) {
-//    float retval = 0;
-//    for (LineItem lineItem : lineItems) {
-//      retval += lineItem.value;
-//    }
-//    return retval;
-//  }
 
   public Integer getId() {
     return id;
