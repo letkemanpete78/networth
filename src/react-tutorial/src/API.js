@@ -132,38 +132,19 @@ class App extends Component {
         const urlLongLiability = 'http://localhost:8080/?category=long_term&type=liability'
         const urlCurrencies = 'http://localhost:8080/currencies'
 
-        fetch(urlCurrencies)
-            .then(result => result.json())
-            .then(result => {
-                this.setState({
-                    moneySymbols: result,
-                })
-            })
+        this.loadCurrencies(urlCurrencies)
 
-        fetch(urlShortAsset)
-            .then(result => result.json())
-            .then(result => {
-                this.setState({
-                    assetDataShort: result,
-                })
-            })
+        this.loadShortAssets(urlShortAsset)
 
-        fetch(urlLongAsset)
-            .then(result => result.json())
-            .then(result => {
-                this.setState({
-                    assetDataLong: result,
-                })
-            })
+        this.loadLongAssets(urlLongAsset)
 
-        fetch(urlShortLiability)
-            .then(result => result.json())
-            .then(result => {
-                this.setState({
-                    liabilityDataShort: result,
-                })
-            })
+        this.loadShortLibilities(urlShortLiability)
 
+        this.loadLongLibilities(urlLongLiability)
+
+    }
+
+    loadLongLibilities(urlLongLiability) {
         fetch(urlLongLiability)
             .then(result => result.json())
             .then(result => {
@@ -171,7 +152,46 @@ class App extends Component {
                     liabilityDataLong: result,
                 })
             })
+    }
 
+    loadShortLibilities(urlShortLiability) {
+        fetch(urlShortLiability)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    liabilityDataShort: result,
+                })
+            })
+    }
+
+    loadLongAssets(urlLongAsset) {
+        fetch(urlLongAsset)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    assetDataLong: result,
+                })
+            })
+    }
+
+    loadShortAssets(urlShortAsset) {
+        fetch(urlShortAsset)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    assetDataShort: result,
+                })
+            })
+    }
+
+    loadCurrencies(urlCurrencies) {
+        fetch(urlCurrencies)
+            .then(result => result.json())
+            .then(result => {
+                this.setState({
+                    moneySymbols: result,
+                })
+            })
     }
 
     updateTableTotal(tablename, totaldiv) {
@@ -238,19 +258,7 @@ class App extends Component {
 
         const InlineEditor = props =>{
             // https://github.com/Vargentum/react-editext
-            const {val,elmClass,elmType,elmID, dsName} = props
-            return (
-                    <EdiText
-                        type={elmType}
-                        viewProps={{
-                            id: elmID,
-                            className: elmClass,
-                            dataname: dsName,
-                        }}
-                        value={String(val)}
-                        onSave={v => this.updateNetworth("pete",v)}
-                    />
-            )
+            return this.createInlineEditor(props)
         }
 
         const resultAssetShort = this.newMoneyRows(assetDataShort, InlineEditor,"assetDataShort")
@@ -267,78 +275,12 @@ class App extends Component {
 
         const AssetTable = () => {
             return (
-                <table id="assetTable"> 
-                    <thead><tr><th colSpan="3"><h4>Assets</h4></th></tr></thead>
-                    <tbody>
-                        <tr><td colSpan="3"><h5>Cash and Investments</h5></td></tr>
-                        {resultAssetShort}
-                        <tr>
-                            <td>
-                                <button
-                                    onClick={this.handleAddAssetShortRow}
-                                    className="btn btn-default pull-left">
-                                    Add Short Term Asset
-                                </button>
-                            </td>
-                        </tr>
-                        <tr><td colSpan="3"><h5>Long Term Assets</h5></td></tr>
-                        {resultAssetLong}
-                        <tr>
-                            <td>
-                                <button
-                                    onClick={this.handleAddAssetLongRow}
-                                    className="btn btn-default pull-left">
-                                    Add Long Term Asset
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td><h4>Total Assets:</h4></td>
-                            <td valign="middle"><h4>$</h4></td>
-                            <td id="assetTotal"><h4 style={{float:"right"}}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td>
-                        </tr>
-                    </tfoot>
-                </table>
+                this.createAssetTable(resultAssetShort, resultAssetLong, assetTotal, ExtraSpacing)
             )}
 
         const LiabilityTable = () => {
             return (
-                <table id="liabilityTable">
-                    <thead><tr><th colSpan="3"><h4>Liabilities</h4></th></tr></thead>
-                    <tbody>
-                        <tr><td colSpan="3"><h5>Short Term Liabilties</h5></td></tr>
-                        {resultLiabilityShort}
-                        <tr>
-                            <td>
-                                <button
-                                    onClick={this.handleAddLiabilityShortRow}
-                                    className="btn btn-default pull-left">
-                                    Add Short Term Liability
-                                </button>
-                            </td>
-                        </tr>
-                        <tr><td colSpan="3"><h5>Long Term Debt</h5></td></tr>
-                        {resultLiabilityLong}
-                        <tr>
-                            <td>
-                                <button
-                                    onClick={this.handleAddLiabilityLongRow}
-                                    className="btn btn-default pull-left">
-                                    Add Long Term Debt
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td><h4>Total Liabilties:</h4></td>
-                            <td valign="middle"><h4>$</h4></td>
-                            <td id="liabilityTotal"><h4 style={{float:"right"}}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td>
-                        </tr>
-                    </tfoot>
-                </table>
+                this.createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing)
             )
         }
 
@@ -377,6 +319,95 @@ class App extends Component {
         }
 
         return <MainTable/>
+    }
+
+    createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing) {
+        return <table id="liabilityTable">
+            <thead><tr><th colSpan="3"><h4>Liabilities</h4></th></tr></thead>
+            <tbody>
+                <tr><td colSpan="3"><h5>Short Term Liabilties</h5></td></tr>
+                {resultLiabilityShort}
+                <tr>
+                    <td>
+                        <button
+                            onClick={this.handleAddLiabilityShortRow}
+                            className="btn btn-default pull-left">
+                            Add Short Term Liability
+                        </button>
+                    </td>
+                </tr>
+                <tr><td colSpan="3"><h5>Long Term Debt</h5></td></tr>
+                {resultLiabilityLong}
+                <tr>
+                    <td>
+                        <button
+                            onClick={this.handleAddLiabilityLongRow}
+                            className="btn btn-default pull-left">
+                                        Add Long Term Debt
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><h4>Total Liabilties:</h4></td>
+                    <td valign="middle"><h4>$</h4></td>
+                    <td id="liabilityTotal"><h4 style={{ float: "right" }}>{liabilityTotal.toFixed(2)}<ExtraSpacing /></h4></td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+
+    createAssetTable(resultAssetShort, resultAssetLong, assetTotal, ExtraSpacing) {
+        return <table id="assetTable">
+            <thead><tr><th colSpan="3"><h4>Assets</h4></th></tr></thead>
+            <tbody>
+                <tr><td colSpan="3"><h5>Cash and Investments</h5></td></tr>
+                {resultAssetShort}
+                <tr>
+                    <td>
+                        <button
+                            onClick={this.handleAddAssetShortRow}
+                            className="btn btn-default pull-left">
+                            Add Short Term Asset
+                        </button>
+                    </td>
+                </tr>
+                <tr><td colSpan="3"><h5>Long Term Assets</h5></td></tr>
+                {resultAssetLong}
+                <tr>
+                    <td>
+                        <button
+                            onClick={this.handleAddAssetLongRow}
+                            className="btn btn-default pull-left">
+                            Add Long Term Asset
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><h4>Total Assets:</h4></td>
+                    <td valign="middle"><h4>$</h4></td>
+                    <td id="assetTotal"><h4 style={{ float: "right" }}>{assetTotal.toFixed(2)}<ExtraSpacing /></h4></td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+
+    createInlineEditor(props) {
+        const { val, elmClass, elmType, elmID, dsName } = props
+        return (
+            <EdiText
+                type={elmType}
+                viewProps={{
+                    id: elmID,
+                    className: elmClass,
+                    dataname: dsName,
+                }}
+                value={String(val)}
+                onSave={v => this.updateNetworth("pete", v)} />
+        )
     }
 
     currencyChange(event,moneySymbols) {
