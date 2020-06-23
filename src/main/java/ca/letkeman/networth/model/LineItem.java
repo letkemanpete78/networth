@@ -4,7 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.mapping.ToOne;
 
 @Entity
 public class LineItem {
@@ -17,18 +21,20 @@ public class LineItem {
   private Category category;
   private String label;
   private float value;
-
+  @OneToOne
+  private Currency currency;
 
   public LineItem() {
   }
 
-  public LineItem(Integer id,String uuid, Type type, Category category, String label, float value) {
+  public LineItem(Integer id,String uuid, Type type, Category category, String label, float value, Currency currency) {
     this.id = id;
     this.uuid = uuid;
     this.type = type;
     this.category = category;
     this.label = label;
     this.value = value;
+    this.currency = currency;
   }
 
   public Integer getId() {
@@ -79,6 +85,13 @@ public class LineItem {
     this.value = value;
   }
 
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  public void setCurrency(Currency currency) {
+    this.currency = currency;
+  }
 
   @Override
   public boolean equals(Object obj) {
@@ -98,6 +111,7 @@ public class LineItem {
         .append(this.category, rhs.category)
         .append(this.label, rhs.label)
         .append(this.value, rhs.value)
+        .append(this.currency, rhs.currency)
         .isEquals();
   }
 
@@ -109,6 +123,7 @@ public class LineItem {
         .append(category)
         .append(label)
         .append(value)
+        .append(currency)
         .toHashCode();
   }
 
@@ -121,6 +136,7 @@ public class LineItem {
         .append("category", category)
         .append("label", label)
         .append("value", value)
+        .append("currency",currency)
         .toString();
   }
 

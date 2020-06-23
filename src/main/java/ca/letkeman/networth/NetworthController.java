@@ -1,5 +1,6 @@
 package ca.letkeman.networth;
 
+import ca.letkeman.networth.dto.CurrencyRepository;
 import ca.letkeman.networth.dto.LineItemRepository;
 import ca.letkeman.networth.model.Category;
 import ca.letkeman.networth.model.Currency;
@@ -33,6 +34,9 @@ public class NetworthController {
   @Autowired
   private LineItemRepository lineItemRepository;
 
+  @Autowired
+  private CurrencyRepository currencyRepository;
+
   @PostMapping(path = "/deletedata")
   public @ResponseBody
   boolean deleteItems(@RequestBody String payload) {
@@ -44,7 +48,8 @@ public class NetworthController {
   @GetMapping(path = "/all")
   public @ResponseBody
   Iterable<LineItem> getItems() {
-    return lineItemRepository.findAll();
+//    return lineItemRepository.findAll();
+    return createDummyData();
   }
 
   @CrossOrigin(origins = "*")
@@ -98,33 +103,11 @@ public class NetworthController {
   }
 
   private Currency getRateBySymbol(String symbol){
-    List<Currency> currencies = currencyList();
-    String selected = symbol;
-    if (selected == null || selected.isEmpty() || selected.trim().equals("")) {
-      selected = "cad";
-    }
-    String finalSelected = selected;
-    Currency currency;
-    try {
-      currency = currencies.stream()
-          .filter(x -> x.getSymbol().toLowerCase().equals(finalSelected.toLowerCase()))
-          .collect(Collectors.toList()).get(0);
-    } catch (IndexOutOfBoundsException e){
-      currency = currencies.stream()
-          .filter(x -> x.getSymbol().toLowerCase().equals("cad"))
-          .collect(Collectors.toList()).get(0);
-    }
-
-    return currency;
+    return currencyRepository.findBySymbol(symbol);
   }
 
   private List<Currency> currencyList(){
-    ArrayList<Currency> currencies = new ArrayList<Currency>();
-    Currency currency1 = new Currency(1, "CAD", 1.0);
-    Currency currency2 = new Currency(2, "USD", 1.2);
-    currencies.add(currency1);
-    currencies.add(currency2);
-    return currencies;
+    return (List<Currency>) currencyRepository.findAll();
   }
 
   private String updateLineItems(String testStr) {
@@ -158,25 +141,30 @@ public class NetworthController {
       lineItems.add(
           new LineItem(i, UUID.randomUUID().toString(), Type.ASSET, Category.SHORT_TERM,
               "label " + i,
-              (float) (baseValue * i * i)));
+              (float) (baseValue * i * i),
+              getRateBySymbol("cad")
+      ));
     }
     for (int i = 6; i < 11; i++) {
       lineItems.add(
           new LineItem(i, UUID.randomUUID().toString(), Type.ASSET, Category.LONG_TERM,
               "label " + i,
-              (float) (baseValue * i * i)));
+              (float) (baseValue * i * i),
+              getRateBySymbol("cad")));
     }
     for (int i = 11; i < 16; i++) {
       lineItems.add(
           new LineItem(i, UUID.randomUUID().toString(), Type.LIABILITY, Category.SHORT_TERM,
               "label " + i,
-              (float) (baseValue * i * i)));
+              (float) (baseValue * i * i),
+              getRateBySymbol("cad")));
     }
     for (int i = 16; i < 21; i++) {
       lineItems.add(
           new LineItem(i, UUID.randomUUID().toString(), Type.LIABILITY, Category.LONG_TERM,
               "label " + i,
-              (float) (baseValue * i * i)));
+              (float) (baseValue * i * i),
+              getRateBySymbol("cad")));
     }
     return lineItems;
   }
