@@ -247,27 +247,23 @@ class App extends Component {
     render(){
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols} = this.state
 
-        const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2);
-        const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2);
-        var assetTotal = parseFloat(shortAssetsTotal) + parseFloat(longAssetsTotal);
+        var assetTotal = assetUpdater(assetDataShort, assetDataLong)
 
-        const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2);
-        const longLiabilitysTotal = liabilityDataLong.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2);
-        var liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal);
+        var liabilityTotal = libilityUpdater(liabilityDataShort, liabilityDataLong)
 
-        const InlineEditor = props =>{
+        const InlineEditor = props => {
             return this.createInlineEditor(props)
         }
 
-        const resultAssetShort = this.newMoneyRows(assetDataShort, InlineEditor,"assetDataShort")
+        const resultAssetShort = this.newMoneyRows(assetDataShort, InlineEditor, "assetDataShort")
 
-        const resultAssetLong = this.newMoneyRows(assetDataLong, InlineEditor,"assetDataLong")
-        
-        const resultLiabilityShort = this.newMoneyRows(liabilityDataShort, InlineEditor,"liabilityDataShort")
+        const resultAssetLong = this.newMoneyRows(assetDataLong, InlineEditor, "assetDataLong")
 
-        const resultLiabilityLong =  this.newMoneyRows(liabilityDataLong, InlineEditor,"liabilityDataLong")
+        const resultLiabilityShort = this.newMoneyRows(liabilityDataShort, InlineEditor, "liabilityDataShort")
 
-        const CalcNetworth = () =>{
+        const resultLiabilityLong = this.newMoneyRows(liabilityDataLong, InlineEditor, "liabilityDataLong")
+
+        const CalcNetworth = () => {
             return (assetTotal - liabilityTotal).toFixed(2)
         }
 
@@ -315,7 +311,6 @@ class App extends Component {
                 </div>
             )
         }
-
         return <MainTable/>
     }
 
@@ -406,49 +401,54 @@ class App extends Component {
         //         value={String(val)}
         //         onSave={v => this.updateNetworth("pete", v)} />
         // )
-
-        // https://stackoverflow.com/questions/49639144/why-does-react-warn-against-an-contenteditable-component-having-children-managed
-        /*
-              <p
-        className={editing ? 'editing' : ''}
-        onClick={editOnClick ? this.toggleEdit : undefined}
-        contentEditable={editing}
-        ref={(domNode) => {
-          this.domElm = domNode;
-        }}
-        onBlur={this.save}
-        onKeyDown={this.handleKeyDown}
-        {...this.props}
-        suppressContentEditableWarning={true}
-      >
-        {this.props.value}
-      </p>
-
-        */
+        var errorID = 'error' + elmID;
+        var pvID = 'pv' + elmID;
         return (
-            <p 
-                contentEditable="true"
-                id={elmID}
-                className={elmClass}
-                dataname={dsName}
-                suppressContentEditableWarning={true}
-                onInput={e => this.updateValues(e.currentTarget.textContent,elmID)}
-                
+            <p>
+                <span 
+                    contentEditable="true"
+                    id={elmID}
+                    className={elmClass}
+                    dataname={dsName}
+                    suppressContentEditableWarning={true}
+                    onInput={e => this.updateValues(e.currentTarget.textContent,elmID)}
+                    data-oldvalue = {val}
 
-                >
-                {String(val)}
+                    >
+                    {String(val)}
+                </span>
+                <span id={errorID} style={{display:"none"}}>
+                    <br/>My custom message
+                    <br/>Preivous Value: <span id={pvID}> {val} </span>
+                </span>
             </p>
         )
     }
     updateValues(value,elmID){
         if (document.getElementById(elmID) !== null) {
-            // console.log(document.getElementById(elmID))
+            var currentElm = document.getElementById(elmID);
             if (elmID.startsWith("edit")){
                 console.log("string");
             } else {
-                console.log("num")
+                var errorID = "error" + elmID;
+                var errorElm = document.getElementById(errorID)
+                if (isNaN(value)){
+                    console.log("bad number")
+                    errorElm.style.display = "inline"
+                } else {
+                    console.log("good number")
+                    if (value != 0){
+                         currentElm.setAttribute("data-oldvalue",value)
+                         var tempval = Number(value).toFixed(2)
+                         document.getElementById("pv" + elmID).innerHTML = tempval + "&nbsp;"
+                         console.log(tempval);
+                    } else {
+                        currentElm.innerHTML=0.00
+                    }
+                    errorElm.style.display = "none"
+                }
             };
-            console.log("value: " + value);
+            this.updateNetworth("pete", "v")
         }
     }
 
@@ -479,4 +479,18 @@ class App extends Component {
 }
 
 export default App
+
+function libilityUpdater(liabilityDataShort, liabilityDataLong) {
+    const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
+    const longLiabilitysTotal = liabilityDataLong.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
+    var liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal)
+    return liabilityTotal
+}
+
+function assetUpdater(assetDataShort, assetDataLong) {
+    const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
+    const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
+    var assetTotal = parseFloat(shortAssetsTotal) + parseFloat(longAssetsTotal)
+    return assetTotal
+}
 
