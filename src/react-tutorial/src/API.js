@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import uuid from 'react-uuid'
-
+import CurrencySelect from './CurrencySelect'
 
 class App extends Component {
     state = {
@@ -285,27 +285,11 @@ class App extends Component {
             )
         }
 
-        const CurrencySelect = () => {
-            const { moneySymbols } = this.state;
-
-            let moneyOptions = moneySymbols.map((item, i) => {
-                return (
-                    <option key={i} value={item.symbol}>{item.symbol}</option>
-                )
-            }, this);
-
-            return (
-                <select name="currency" onChange={(e) => this.currencyChange(e, moneySymbols)}>
-                    {moneyOptions}
-                </select>
-            );
-        }
-
         const MainTable = () => {
             return (
                 <div>
                     <h1>Tracking your Networth</h1>
-                    <div>Select Currency: <CurrencySelect /></div>
+                    <div>Select Currency: <CurrencySelect moneySymbols={moneySymbols} /></div>
                     Networth: <div id="networth" style={{ display: "inline" }}><CalcNetworth /></div>
                     <AssetTable />
                     <LiabilityTable />
@@ -447,11 +431,6 @@ class App extends Component {
             }
         }
         this.updateNetworth()
-    }
-
-    currencyChange(event, moneySymbols) {
-        console.log(event.target.value);
-        console.log(moneySymbols);
     }
 
     newMoneyRows(assetDataShort, InlineEditor, dataSetName) {
