@@ -412,6 +412,7 @@ class App extends Component {
                     dataname={dsName}
                     suppressContentEditableWarning={true}
                     onInput={e => this.updateValues(e.currentTarget.textContent,elmID)}
+                    onBlur={e => this.formatNumber(e.currentTarget.textContent,elmID)}
                     data-oldvalue = {val}
 
                     >
@@ -439,9 +440,7 @@ class App extends Component {
                     console.log("good number")
                     if (value != 0){
                          currentElm.setAttribute("data-oldvalue",value)
-                         var tempval = Number(value).toFixed(2)
-                         document.getElementById("pv" + elmID).innerHTML = tempval + "&nbsp;"
-                         console.log(tempval);
+                         document.getElementById("pv" + elmID).innerHTML = Number(value).toFixed(2)
                     } else {
                         currentElm.innerHTML=0.00
                     }
@@ -452,6 +451,16 @@ class App extends Component {
         }
     }
 
+    formatNumber(value,elmID){
+        if (document.getElementById(elmID) !== null) {
+            var currentElm = document.getElementById(elmID);
+            if (elmID.startsWith("edit")){
+                console.log("string");
+            } else {
+                currentElm.innerHTML = Number(currentElm.innerHTML).toFixed(2)
+            }
+        }
+    }
 
     currencyChange(event,moneySymbols) {
         console.log(event.target.value);
