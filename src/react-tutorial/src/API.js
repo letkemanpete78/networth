@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import EdiText from 'react-editext'
 import uuid from 'react-uuid'
 
 
@@ -395,20 +394,64 @@ class App extends Component {
     }
 
     createInlineEditor(props) {
-        // https://github.com/Vargentum/react-editext
         const { val, elmClass, elmType, elmID, dsName } = props
+        // return (
+        //     <EdiText
+        //         type={elmType}
+        //         viewProps={{
+        //             id: elmID,
+        //             className: elmClass,
+        //             dataname: dsName,
+        //         }}
+        //         value={String(val)}
+        //         onSave={v => this.updateNetworth("pete", v)} />
+        // )
+
+        // https://stackoverflow.com/questions/49639144/why-does-react-warn-against-an-contenteditable-component-having-children-managed
+        /*
+              <p
+        className={editing ? 'editing' : ''}
+        onClick={editOnClick ? this.toggleEdit : undefined}
+        contentEditable={editing}
+        ref={(domNode) => {
+          this.domElm = domNode;
+        }}
+        onBlur={this.save}
+        onKeyDown={this.handleKeyDown}
+        {...this.props}
+        suppressContentEditableWarning={true}
+      >
+        {this.props.value}
+      </p>
+
+        */
         return (
-            <EdiText
-                type={elmType}
-                viewProps={{
-                    id: elmID,
-                    className: elmClass,
-                    dataname: dsName,
-                }}
-                value={String(val)}
-                onSave={v => this.updateNetworth("pete", v)} />
+            <p 
+                contentEditable="true"
+                id={elmID}
+                className={elmClass}
+                dataname={dsName}
+                suppressContentEditableWarning={true}
+                onInput={e => this.updateValues(e.currentTarget.textContent,elmID)}
+                
+
+                >
+                {String(val)}
+            </p>
         )
     }
+    updateValues(value,elmID){
+        if (document.getElementById(elmID) !== null) {
+            // console.log(document.getElementById(elmID))
+            if (elmID.startsWith("edit")){
+                console.log("string");
+            } else {
+                console.log("num")
+            };
+            console.log("value: " + value);
+        }
+    }
+
 
     currencyChange(event,moneySymbols) {
         console.log(event.target.value);
