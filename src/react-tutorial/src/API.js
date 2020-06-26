@@ -6,22 +6,22 @@ class App extends Component {
     state = {
         assetDataShort: [],
         assetDataLong: [],
-        assetTotal:0,
+        assetTotal: 0,
         liabilityDataShort: [],
         liabilityDataLong: [],
-        liabilityTotal:0,
-        moneySymbols:[],
+        liabilityTotal: 0,
+        moneySymbols: [],
     }
 
-    removeRow = (index,dataset) => {
-        const { assetDataShort ,assetDataLong,liabilityDataShort,liabilityDataLong } = this.state
+    removeRow = (index, dataset) => {
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
         const urlFormPost = 'http://localhost:8080/deletedata'
 
         var deleteUUID = ''
-        if (dataset==="assetDataShort") {
+        if (dataset === "assetDataShort") {
             this.setState({
                 assetDataShort: assetDataShort.filter((row, i) => {
-                    if (i === index){
+                    if (i === index) {
                         deleteUUID = assetDataShort[i].uuid;
                         return false;
                     } else {
@@ -29,21 +29,21 @@ class App extends Component {
                     }
                 }),
             })
-        } else if (dataset==="assetDataLong") {
+        } else if (dataset === "assetDataLong") {
             this.setState({
                 assetDataLong: assetDataLong.filter((row, i) => {
-                    if (i === index){
-                        deleteUUID =assetDataLong[i].uuid;
+                    if (i === index) {
+                        deleteUUID = assetDataLong[i].uuid;
                         return false;
                     } else {
                         return true;
                     }
                 }),
             })
-        } else if (dataset==="liabilityDataShort") {
+        } else if (dataset === "liabilityDataShort") {
             this.setState({
                 liabilityDataShort: liabilityDataShort.filter((row, i) => {
-                    if (i === index){
+                    if (i === index) {
                         deleteUUID = liabilityDataShort[i].uuid;
                         return false;
                     } else {
@@ -51,10 +51,10 @@ class App extends Component {
                     }
                 }),
             })
-        } else  {
+        } else {
             this.setState({
                 liabilityDataLong: liabilityDataLong.filter((row, i) => {
-                    if (i === index){
+                    if (i === index) {
                         deleteUUID = liabilityDataLong[i].uuid;
                         return false;
                     } else {
@@ -73,57 +73,57 @@ class App extends Component {
 
     handleAddAssetShortRow = () => {
         const item = {
-          label: "",
-          value: 0.00,
-          uuid: uuid(),
-          type: "asset",
-          category: "short_term"
+            label: "",
+            value: 0.00,
+            uuid: uuid(),
+            type: "asset",
+            category: "short_term"
         };
         this.setState({
             assetDataShort: [...this.state.assetDataShort, item]
         });
     };
-    
+
     handleAddAssetLongRow = () => {
         const item = {
-          label: "",
-          value: 0.00,
-          uuid: uuid(),
-          type: "asset",
-          category: "long_term"
+            label: "",
+            value: 0.00,
+            uuid: uuid(),
+            type: "asset",
+            category: "long_term"
         };
         this.setState({
             assetDataLong: [...this.state.assetDataLong, item]
         });
     };
-      
+
     handleAddLiabilityShortRow = () => {
         const item = {
-          label: "",
-          value: 0.00,
-          uuid: uuid(),
-          type: "liability",
-          category: "short_term"
+            label: "",
+            value: 0.00,
+            uuid: uuid(),
+            type: "liability",
+            category: "short_term"
         };
         this.setState({
             liabilityDataShort: [...this.state.liabilityDataShort, item]
         });
     };
-      
+
     handleAddLiabilityLongRow = () => {
         const item = {
-          label: "",
-          value: 0.00,
-          uuid: uuid(),
-          type: "liability",
-          category: "long_term"
+            label: "",
+            value: 0.00,
+            uuid: uuid(),
+            type: "liability",
+            category: "long_term"
         };
         this.setState({
             liabilityDataLong: [...this.state.liabilityDataLong, item]
         });
     };
 
-    componentDidMount(){
+    componentDidMount() {
 
         const urlShortAsset = 'http://localhost:8080/?category=short_term&type=asset'
         const urlLongAsset = 'http://localhost:8080/?category=long_term&type=asset'
@@ -196,22 +196,22 @@ class App extends Component {
     updateTableTotal(tablename, totalspan) {
         let assets = document.getElementById(tablename)
         let assetValues = assets.getElementsByClassName("editView")
-    
+
         var i
         var total = 0
         for (i = 0; i < assetValues.length; i++) {
             total += parseFloat(assetValues[i].innerHTML)
         }
-        document.getElementById(totalspan).innerHTML =  total.toFixed(2);
+        document.getElementById(totalspan).innerHTML = total.toFixed(2);
         return total;
     }
 
-    updateNetworth(name,val) {
+    updateNetworth() {
         const urlFormPost = 'http://localhost:8080/submitdata'
 
         let totalAssets = this.updateTableTotal("assetTable", "assetTotal");
         let totalLiability = this.updateTableTotal("liabilityTable", "liabilityTotal");
-        let totalworth = totalAssets-totalLiability
+        let totalworth = totalAssets - totalLiability
         document.getElementById("networth").innerHTML = totalworth.toFixed(2);
 
         var dataToSend = this.getDataItems("assetTable");
@@ -227,7 +227,7 @@ class App extends Component {
         var dataToSend1 = [];
         let assets = document.getElementById(tableName)
         var domItems = assets.querySelectorAll("[dataname]")
-    
+
         var records
         var uuid;
         var label;
@@ -237,15 +237,15 @@ class App extends Component {
             uuid = userItem.id.replace("edit-", "");
             label = userItem.innerHTML;
             value = document.getElementById(uuid).innerHTML;
-            var rec = { uuid: uuid, type: records[0], category: records[1] +"_TERM", label: label, value: value };
+            var rec = { uuid: uuid, type: records[0], category: records[1] + "_TERM", label: label, value: value };
             dataToSend1.push(rec);
         });
         return dataToSend1;
     }
-      
 
-    render(){
-        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols} = this.state
+
+    render() {
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols } = this.state
 
         var assetTotal = assetUpdater(assetDataShort, assetDataLong)
 
@@ -270,7 +270,8 @@ class App extends Component {
         const AssetTable = () => {
             return (
                 this.createAssetTable(resultAssetShort, resultAssetLong, assetTotal, ExtraSpacing)
-            )}
+            )
+        }
 
         const LiabilityTable = () => {
             return (
@@ -294,7 +295,7 @@ class App extends Component {
             }, this);
 
             return (
-                <select name="currency" onChange={(e) => this.currencyChange(e,moneySymbols)}>
+                <select name="currency" onChange={(e) => this.currencyChange(e, moneySymbols)}>
                     {moneyOptions}
                 </select>
             );
@@ -305,13 +306,13 @@ class App extends Component {
                 <div>
                     <h1>Tracking your Networth</h1>
                     <div>Select Currency: <CurrencySelect /></div>
-                    Networth: <div id="networth" style={{display:"inline"}}><CalcNetworth/></div>
-                    <AssetTable/>
-                    <LiabilityTable/>
+                    Networth: <div id="networth" style={{ display: "inline" }}><CalcNetworth /></div>
+                    <AssetTable />
+                    <LiabilityTable />
                 </div>
             )
         }
-        return <MainTable/>
+        return <MainTable />
     }
 
     createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing) {
@@ -336,7 +337,7 @@ class App extends Component {
                         <button
                             onClick={this.handleAddLiabilityLongRow}
                             className="btn btn-default pull-left">
-                                        Add Long Term Debt
+                            Add Long Term Debt
                         </button>
                     </td>
                 </tr>
@@ -390,97 +391,89 @@ class App extends Component {
 
     createInlineEditor(props) {
         const { val, elmClass, elmType, elmID, dsName } = props
-        // return (
-        //     <EdiText
-        //         type={elmType}
-        //         viewProps={{
-        //             id: elmID,
-        //             className: elmClass,
-        //             dataname: dsName,
-        //         }}
-        //         value={String(val)}
-        //         onSave={v => this.updateNetworth("pete", v)} />
-        // )
-        var errorID = 'error' + elmID;
-        var pvID = 'pv' + elmID;
+        var errorID = 'error' + elmID
+        var pvID = 'pv' + elmID
         return (
             <p>
-                <span 
+                <span
                     contentEditable="true"
                     id={elmID}
                     className={elmClass}
                     dataname={dsName}
                     suppressContentEditableWarning={true}
-                    onInput={e => this.updateValues(e.currentTarget.textContent,elmID)}
-                    onBlur={e => this.formatNumber(e.currentTarget.textContent,elmID)}
-                    data-oldvalue = {val}
+                    onInput={e => this.updateValues(e.currentTarget.textContent, elmID)}
+                    onBlur={e => this.formatNumber(e.currentTarget.textContent, elmID)}
+                    data-oldvalue={val}
 
-                    >
+                >
                     {String(val)}
                 </span>
-                <span id={errorID} style={{display:"none"}}>
-                    <br/>My custom message
-                    <br/>Preivous Value: <span id={pvID}> {val} </span>
+                <span id={errorID} style={{ display: "none" }}>
+                    <br />My custom message
+                    <br />Preivous Value: <span id={pvID}> {val} </span>
                 </span>
             </p>
         )
     }
-    updateValues(value,elmID){
+    updateValues(value, elmID) {
         if (document.getElementById(elmID) !== null) {
             var currentElm = document.getElementById(elmID);
-            if (elmID.startsWith("edit")){
-                console.log("string");
+            if (elmID.startsWith("edit")) {
             } else {
                 var errorID = "error" + elmID;
                 var errorElm = document.getElementById(errorID)
-                if (isNaN(value)){
-                    console.log("bad number")
+                if (isNaN(value)) {
                     errorElm.style.display = "inline"
                 } else {
-                    console.log("good number")
-                    if (value != 0){
-                         currentElm.setAttribute("data-oldvalue",value)
-                         document.getElementById("pv" + elmID).innerHTML = Number(value).toFixed(2)
+                    if (value != 0) {
+                        currentElm.setAttribute("data-oldvalue", value)
+                        document.getElementById("pv" + elmID).innerHTML = Number(value).toFixed(2)
                     } else {
-                        currentElm.innerHTML=0.00
+                        currentElm.innerHTML = 0.00
                     }
                     errorElm.style.display = "none"
                 }
             };
-            this.updateNetworth("pete", "v")
         }
     }
 
-    formatNumber(value,elmID){
+    formatNumber(value, elmID) {
         if (document.getElementById(elmID) !== null) {
             var currentElm = document.getElementById(elmID);
-            if (elmID.startsWith("edit")){
+            if (elmID.startsWith("edit")) {
                 console.log("string");
             } else {
                 currentElm.innerHTML = Number(currentElm.innerHTML).toFixed(2)
             }
         }
+        this.updateNetworth()
     }
 
-    currencyChange(event,moneySymbols) {
+    currencyChange(event, moneySymbols) {
         console.log(event.target.value);
         console.log(moneySymbols);
-      }
+    }
 
-    newMoneyRows(assetDataShort, InlineEditor,dataSetName) {
+    newMoneyRows(assetDataShort, InlineEditor, dataSetName) {
         return assetDataShort.map((entry, index) => {
+            var tempLabel = ""
+            if ("" === entry.label){
+                tempLabel = "untiled"
+            } else {
+                tempLabel = entry.label
+            }
             return <tr key={index}>
                 <td width="60%">
-                    <InlineEditor val={entry.label} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} />
+                    <InlineEditor val={tempLabel} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} />
                 </td>
-                <td width="3%" style={{ lineHeight:"3"}} valign="bottom"><div>$</div></td>
+                <td width="3%" style={{ lineHeight: "3" }} valign="bottom"><div>$</div></td>
                 <td width="37%">
-                    <div style={{float:"right"}}>
-                        <InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid}/>
+                    <div style={{ float: "right" }}>
+                        <InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid} />
                     </div>
                 </td>
                 <td>
-                    <button onClick={() => this.removeRow(index,dataSetName)}>X</button>
+                    <button onClick={() => this.removeRow(index, dataSetName)}>X</button>
                 </td>
             </tr>
         })
