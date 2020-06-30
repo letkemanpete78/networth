@@ -1,27 +1,26 @@
 package ca.letkeman.networth.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.mapping.ToOne;
 
 @Entity
 public class LineItem {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(unique = true, nullable = false)
   private Integer id;
   private String uuid;
   private Type type;
   private Category category;
   private String label;
   private float value;
-  @OneToOne
+  @ManyToOne
   private Currency currency;
 
   public LineItem() {

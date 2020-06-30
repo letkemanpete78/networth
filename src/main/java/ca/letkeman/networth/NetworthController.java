@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -130,7 +131,8 @@ public class NetworthController {
         })
         .collect(Collectors.toList());
     lineItemRepository.saveAll(updateItems);
-    return "updated";
+
+    return "updated\n" + updateItems.toString();
   }
 
   private List<LineItem> createDummyData() {

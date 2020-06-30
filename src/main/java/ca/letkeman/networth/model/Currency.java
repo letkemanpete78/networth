@@ -1,5 +1,6 @@
 package ca.letkeman.networth.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +14,8 @@ public class Currency {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(unique = true, nullable = false)
+
   private Integer id;
   private String symbol;
   private double rate;
