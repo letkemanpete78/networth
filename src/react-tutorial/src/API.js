@@ -252,10 +252,11 @@ class App extends Component {
         var liabilityTotal = libilityUpdater(liabilityDataShort, liabilityDataLong)
 
         const InlineEditor = props => {
-            return this.createInlineEditor(props)
+            return this.createInlineEditor(props, assetDataShort)
         }
 
-        const resultAssetShort = this.newMoneyRows(assetDataShort, InlineEditor, "assetDataShort")
+
+        const resultAssetShort = this.newShortAssetRow(assetDataShort, InlineEditor, "assetDataShort")
 
         const resultAssetLong = this.newMoneyRows(assetDataLong, InlineEditor, "assetDataLong")
 
@@ -373,8 +374,8 @@ class App extends Component {
         </table>
     }
 
-    createInlineEditor(props) {
-        const { val, elmClass, elmType, elmID, dsName } = props
+    createInlineEditor(props, assetDataShort) {
+        const { val, elmClass, elmType, elmID, dsName, index } = props
         var errorID = 'error' + elmID
         var pvID = 'pv' + elmID
         return (
@@ -385,8 +386,8 @@ class App extends Component {
                     className={elmClass}
                     dataname={dsName}
                     suppressContentEditableWarning={true}
-                    onInput={e => this.updateValues(e.currentTarget.textContent, elmID)}
-                    onBlur={e => this.formatNumber(e.currentTarget.textContent, elmID)}
+                    onInput={e => this.updateValues(e.currentTarget.textContent, elmID, index, assetDataShort)}
+                    onBlur={e => this.formatNumber(e.currentTarget.textContent, elmID, index, assetDataShort)}
                     data-oldvalue={val}
 
                 >
@@ -399,17 +400,23 @@ class App extends Component {
             </p>
         )
     }
-    updateValues(value, elmID) {
+    updateValues(value, elmID, index, assetDataShort) {
+
         if (document.getElementById(elmID) !== null) {
-            var currentElm = document.getElementById(elmID);
+            console.log("pre updateValues assetDataShort")
+            console.log(assetDataShort)
+
+            var currentElm = document.getElementById(elmID)
             if (elmID.startsWith("edit")) {
+                assetDataShort[index].label = value
             } else {
                 var errorID = "error" + elmID;
                 var errorElm = document.getElementById(errorID)
                 if (isNaN(value)) {
                     errorElm.style.display = "inline"
                 } else {
-                    if (value != 0) {
+                    assetDataShort[index].value = value
+                    if (value !== 0) {
                         currentElm.setAttribute("data-oldvalue", value)
                         document.getElementById("pv" + elmID).innerHTML = Number(value).toFixed(2)
                     } else {
@@ -417,15 +424,18 @@ class App extends Component {
                     }
                     errorElm.style.display = "none"
                 }
-            };
+            }
+            console.log("pre updateValues assetDataShort")
+            console.log(assetDataShort)
         }
     }
 
-    formatNumber(value, elmID) {
+    formatNumber(value, elmID, index, assetDataShort) {
+        console.log("formatNumber index " + index)
         if (document.getElementById(elmID) !== null) {
             var currentElm = document.getElementById(elmID);
             if (elmID.startsWith("edit")) {
-                console.log("string");
+                // console.log("string");
             } else {
                 currentElm.innerHTML = Number(currentElm.innerHTML).toFixed(2)
             }
@@ -433,22 +443,51 @@ class App extends Component {
         this.updateNetworth()
     }
 
+    newShortAssetRow(assetDataShort, InlineEditor, dataSetName) {
+        return assetDataShort.map((entry, index) => {
+            var tempLabel = ""
+            var tempNum = 0.00
+            if ("" === entry.label) {
+                tempLabel = "untiled"
+            } else {
+                tempLabel = entry.label
+            }
+            if (!isNaN(entry.value) ){
+                tempNum = Number(entry.value).toFixed(2)
+            }
+            return <tr key={index}>
+                <td width="60%">
+                    <InlineEditor val={tempLabel} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} index={index} />
+                </td>
+                <td width="3%" style={{ lineHeight: "3" }} valign="bottom"><div>$</div></td>
+                <td width="37%">
+                    <div style={{ float: "right" }}>
+                        <InlineEditor val={tempNum} elmClass="editView" elmType="number" elmID={entry.uuid} index={index} />
+                    </div>
+                </td>
+                <td>
+                    <button onClick={() => this.removeRow(index, dataSetName)}>X</button>
+                </td>
+            </tr>
+        })
+    }
+
     newMoneyRows(assetDataShort, InlineEditor, dataSetName) {
         return assetDataShort.map((entry, index) => {
             var tempLabel = ""
-            if ("" === entry.label){
+            if ("" === entry.label) {
                 tempLabel = "untiled"
             } else {
                 tempLabel = entry.label
             }
             return <tr key={index}>
                 <td width="60%">
-                    <InlineEditor val={tempLabel} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} />
+                    <InlineEditor val={tempLabel} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} index={index} />
                 </td>
                 <td width="3%" style={{ lineHeight: "3" }} valign="bottom"><div>$</div></td>
                 <td width="37%">
                     <div style={{ float: "right" }}>
-                        <InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid} />
+                        <InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid} index={index} />
                     </div>
                 </td>
                 <td>
