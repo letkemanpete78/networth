@@ -197,8 +197,8 @@ class App extends Component {
         let assets = document.getElementById(tablename)
         let assetValues = assets.getElementsByClassName("editView")
 
-        var i
-        var total = 0
+        let i
+        let total = 0
         for (i = 0; i < assetValues.length; i++) {
             total += parseFloat(assetValues[i].innerHTML)
         }
@@ -214,7 +214,7 @@ class App extends Component {
         let totalworth = totalAssets - totalLiability
         document.getElementById("networth").innerHTML = totalworth.toFixed(2);
 
-        var dataToSend = this.getDataItems("assetTable");
+        let dataToSend = this.getDataItems("assetTable");
         dataToSend.push(...this.getDataItems("liabilityTable"));
 
         fetch(urlFormPost, {
@@ -224,20 +224,21 @@ class App extends Component {
     }
 
     getDataItems(tableName) {
-        var dataToSend1 = [];
-        let assets = document.getElementById(tableName)
-        var domItems = assets.querySelectorAll("[dataname]")
+        let dataToSend1 = [];
+        // let domItems = document.getElementById(tableName).querySelectorAll("[dataname]").querySelectorAll("[id^='edit']")
+        let domItems = document.getElementById(tableName).querySelectorAll("[id^='edit']")
+        ////.getElementsByClassName("entryLabel")
 
-        var records
-        var uuid;
-        var label;
-        var value;
+        let records
+        let uuid;
+        let label;
+        let value;
         domItems.forEach(function (userItem) {
             records = userItem.getAttribute("dataname").toUpperCase().split("DATA");
             uuid = userItem.id.replace("edit-", "");
             label = userItem.innerHTML;
             value = document.getElementById(uuid).innerHTML;
-            var rec = { uuid: uuid, type: records[0], category: records[1] + "_TERM", label: label, value: value };
+            let rec = { uuid: uuid, type: records[0], category: records[1] + "_TERM", label: label, value: value };
             dataToSend1.push(rec);
         });
         return dataToSend1;
@@ -247,22 +248,22 @@ class App extends Component {
     render() {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols } = this.state
 
-        var assetTotal = assetUpdater(assetDataShort, assetDataLong)
+        let assetTotal = assetUpdater(assetDataShort, assetDataLong)
 
-        var liabilityTotal = libilityUpdater(liabilityDataShort, liabilityDataLong)
+        let liabilityTotal = libilityUpdater(liabilityDataShort, liabilityDataLong)
 
         const InlineEditor = props => {
-            return this.createInlineEditor(props, assetDataShort)
+            return this.createInlineEditor(props, this.state)
         }
 
 
-        const resultAssetShort = this.newShortAssetRow(assetDataShort, InlineEditor, "assetDataShort")
+        const resultAssetShort = this.newLineItemRow(this.state, InlineEditor, "assetDataShort")
 
-        const resultAssetLong = this.newMoneyRows(assetDataLong, InlineEditor, "assetDataLong")
+        const resultAssetLong = this.newLineItemRow(this.state, InlineEditor, "assetDataLong")
 
-        const resultLiabilityShort = this.newMoneyRows(liabilityDataShort, InlineEditor, "liabilityDataShort")
+        const resultLiabilityShort = this.newLineItemRow(this.state, InlineEditor, "liabilityDataShort")
 
-        const resultLiabilityLong = this.newMoneyRows(liabilityDataLong, InlineEditor, "liabilityDataLong")
+        const resultLiabilityLong = this.newLineItemRow(this.state, InlineEditor, "liabilityDataLong")
 
         const CalcNetworth = () => {
             return (assetTotal - liabilityTotal).toFixed(2)
@@ -374,10 +375,11 @@ class App extends Component {
         </table>
     }
 
-    createInlineEditor(props, assetDataShort) {
+    createInlineEditor(props, state) {
         const { val, elmClass, elmType, elmID, dsName, index } = props
-        var errorID = 'error' + elmID
-        var pvID = 'pv' + elmID
+
+        let errorID = 'error' + elmID
+        let pvID = 'pv' + elmID
         return (
             <p>
                 <span
@@ -386,8 +388,8 @@ class App extends Component {
                     className={elmClass}
                     dataname={dsName}
                     suppressContentEditableWarning={true}
-                    onInput={e => this.updateValues(e.currentTarget.textContent, elmID, index, assetDataShort)}
-                    onBlur={e => this.formatNumber(e.currentTarget.textContent, elmID, index, assetDataShort)}
+                    onInput={e => this.handleOnInput(e.currentTarget.textContent, elmID, index, dsName, state)}
+                    onBlur={e => this.handleOnBlur(e.currentTarget.textContent, elmID, index, dsName, state)}
                     data-oldvalue={val}
 
                 >
@@ -400,22 +402,31 @@ class App extends Component {
             </p>
         )
     }
-    updateValues(value, elmID, index, assetDataShort) {
+    handleOnInput(value, elmID, index, dsName, state) {
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = state
 
+        let lineItems;
+        if (dsName === "assetDataShort") {
+            lineItems = assetDataShort
+        } else if (dsName === "assetDataLong") {
+            lineItems = assetDataLong
+        } else if (dsName === "liabilityDataShort") {
+            lineItems = liabilityDataShort
+        } else {
+            lineItems = liabilityDataLong
+        }
+        
         if (document.getElementById(elmID) !== null) {
-            console.log("pre updateValues assetDataShort")
-            console.log(assetDataShort)
-
-            var currentElm = document.getElementById(elmID)
+            let currentElm = document.getElementById(elmID)
             if (elmID.startsWith("edit")) {
-                assetDataShort[index].label = value
+                lineItems[index].label = value
             } else {
-                var errorID = "error" + elmID;
-                var errorElm = document.getElementById(errorID)
+                let errorID = "error" + elmID;
+                let errorElm = document.getElementById(errorID)
                 if (isNaN(value)) {
                     errorElm.style.display = "inline"
                 } else {
-                    assetDataShort[index].value = value
+                    lineItems[index].value = value
                     if (value !== 0) {
                         currentElm.setAttribute("data-oldvalue", value)
                         document.getElementById("pv" + elmID).innerHTML = Number(value).toFixed(2)
@@ -425,34 +436,57 @@ class App extends Component {
                     errorElm.style.display = "none"
                 }
             }
-            console.log("pre updateValues assetDataShort")
-            console.log(assetDataShort)
         }
     }
 
-    formatNumber(value, elmID, index, assetDataShort) {
-        console.log("formatNumber index " + index)
+    handleOnBlur(value, elmID, index, dsName, state) {
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = state
+        console.log("index : " + index)
+       
+        let lineItems;
+        if (dsName === "assetDataShort") {
+            lineItems = assetDataShort
+        } else if (dsName === "assetDataLong") {
+            lineItems = assetDataLong
+        } else if (dsName === "liabilityDataShort") {
+            lineItems = liabilityDataShort
+        } else {
+            lineItems = liabilityDataLong
+        }
+        
         if (document.getElementById(elmID) !== null) {
-            var currentElm = document.getElementById(elmID);
+            let currentElm = document.getElementById(elmID);
             if (elmID.startsWith("edit")) {
-                // console.log("string");
+                lineItems[index].label = value
             } else {
                 currentElm.innerHTML = Number(currentElm.innerHTML).toFixed(2)
+                lineItems[index].value = value
             }
         }
         this.updateNetworth()
     }
 
-    newShortAssetRow(assetDataShort, InlineEditor, dataSetName) {
-        return assetDataShort.map((entry, index) => {
-            var tempLabel = ""
-            var tempNum = 0.00
+    newLineItemRow(state, InlineEditor, dataSetName) {
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = state
+        let lineItems;
+        if (dataSetName === "assetDataShort") {
+            lineItems = assetDataShort
+        } else if (dataSetName === "assetDataLong") {
+            lineItems = assetDataLong
+        } else if (dataSetName === "liabilityDataShort") {
+            lineItems = liabilityDataShort
+        } else if (dataSetName === "liabilityDataLong") {
+            lineItems = liabilityDataLong
+        }
+        return lineItems.map((entry, index) => {
+            let tempLabel = ""
+            let tempNum = 0.00
             if ("" === entry.label) {
                 tempLabel = "untiled"
             } else {
                 tempLabel = entry.label
             }
-            if (!isNaN(entry.value) ){
+            if (!isNaN(entry.value)) {
                 tempNum = Number(entry.value).toFixed(2)
             }
             return <tr key={index}>
@@ -462,32 +496,7 @@ class App extends Component {
                 <td width="3%" style={{ lineHeight: "3" }} valign="bottom"><div>$</div></td>
                 <td width="37%">
                     <div style={{ float: "right" }}>
-                        <InlineEditor val={tempNum} elmClass="editView" elmType="number" elmID={entry.uuid} index={index} />
-                    </div>
-                </td>
-                <td>
-                    <button onClick={() => this.removeRow(index, dataSetName)}>X</button>
-                </td>
-            </tr>
-        })
-    }
-
-    newMoneyRows(assetDataShort, InlineEditor, dataSetName) {
-        return assetDataShort.map((entry, index) => {
-            var tempLabel = ""
-            if ("" === entry.label) {
-                tempLabel = "untiled"
-            } else {
-                tempLabel = entry.label
-            }
-            return <tr key={index}>
-                <td width="60%">
-                    <InlineEditor val={tempLabel} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} index={index} />
-                </td>
-                <td width="3%" style={{ lineHeight: "3" }} valign="bottom"><div>$</div></td>
-                <td width="37%">
-                    <div style={{ float: "right" }}>
-                        <InlineEditor val={entry.value.toFixed(2)} elmClass="editView" elmType="number" elmID={entry.uuid} index={index} />
+                        <InlineEditor val={tempNum} elmClass="editView" elmType="number" elmID={entry.uuid} index={index} dsName={dataSetName} />
                     </div>
                 </td>
                 <td>
@@ -503,14 +512,14 @@ export default App
 function libilityUpdater(liabilityDataShort, liabilityDataLong) {
     const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
     const longLiabilitysTotal = liabilityDataLong.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
-    var liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal)
+    let liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal)
     return liabilityTotal
 }
 
 function assetUpdater(assetDataShort, assetDataLong) {
     const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
     const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
-    var assetTotal = parseFloat(shortAssetsTotal) + parseFloat(longAssetsTotal)
+    let assetTotal = parseFloat(shortAssetsTotal) + parseFloat(longAssetsTotal)
     return assetTotal
 }
 
