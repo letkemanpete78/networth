@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import uuid from 'react-uuid'
-import CurrencySelect from './CurrencySelect'
+// import CurrencySelect from './CurrencySelect'
 
-class App extends Component {
+class Intuit extends Component {
     state = {
         assetDataShort: [],
         assetDataLong: [],
@@ -11,6 +11,7 @@ class App extends Component {
         liabilityDataLong: [],
         liabilityTotal: 0,
         moneySymbols: [],
+        currencyHistory: []
     }
 
     removeRow = (index, dataset) => {
@@ -140,6 +141,9 @@ class App extends Component {
         this.loadShortLibilities(urlShortLiability)
 
         this.loadLongLibilities(urlLongLiability)
+        this.state.currencyHistory.push(this.state.moneySymbols[0])
+
+        
 
     }
 
@@ -189,13 +193,23 @@ class App extends Component {
             .then(result => {
                 this.setState({
                     moneySymbols: result,
+                    
                 })
+                this.state.currencyHistory.push(this.state.moneySymbols[0])
+
+                if (typeof this.state.currencyHistory[0] === 'undefined'){
+                    this.state.currencyHistory.splice(0,1)
+
+                }
             })
+            
     }
 
     updateTableTotal(tablename, totalspan) {
         let assets = document.getElementById(tablename)
         let assetValues = assets.getElementsByClassName("editView")
+        console.log("update")
+        console.log(this.state.currencyHistory)
 
         let i
         let total = 0
@@ -225,9 +239,7 @@ class App extends Component {
 
     getDataItems(tableName) {
         let dataToSend1 = [];
-        // let domItems = document.getElementById(tableName).querySelectorAll("[dataname]").querySelectorAll("[id^='edit']")
         let domItems = document.getElementById(tableName).querySelectorAll("[id^='edit']")
-        ////.getElementsByClassName("entryLabel")
 
         let records
         let uuid;
@@ -247,10 +259,12 @@ class App extends Component {
 
     render() {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols } = this.state
+        
 
         let assetTotal = assetUpdater(assetDataShort, assetDataLong)
 
         let liabilityTotal = libilityUpdater(liabilityDataShort, liabilityDataLong)
+
 
         const InlineEditor = props => {
             return this.createInlineEditor(props, this.state)
@@ -287,6 +301,26 @@ class App extends Component {
             )
         }
 
+        const CurrencySelect = (props) => {
+            const { moneySymbols } = props
+            const {currencyHistory} = this.state
+
+            let moneyOptions = moneySymbols.map((item, i) => {
+                return (
+                    <option key={i} value={item.symbol}>{item.symbol}</option>
+                )
+            }, this);
+        
+            return (
+                <select name="currency" 
+                    onChange={(e) => this.currencyChange(e, moneySymbols,currencyHistory)}
+                    >
+                    {moneyOptions}
+                </select>
+            )
+        
+        }
+
         const MainTable = () => {
             return (
                 <div>
@@ -299,6 +333,19 @@ class App extends Component {
             )
         }
         return <MainTable />
+    }
+
+    currencyChange(event, moneySymbols, currencyHistory) {
+        let i
+        for ( i =0;i<moneySymbols.length;i++){
+            if (event.target.value === moneySymbols[i].symbol){
+                currencyHistory.push(moneySymbols[i])
+            }
+        }
+        if (currencyHistory.length > 2){
+            currencyHistory.splice(0,1)
+        }
+        console.log(currencyHistory);
     }
 
     createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing) {
@@ -505,9 +552,18 @@ class App extends Component {
             </tr>
         })
     }
+
+
+    
+
 }
 
-export default App
+export default Intuit
+
+// function currencyChange(event, moneySymbols) {
+//     console.log(event.target.value);
+//     console.log(moneySymbols);
+// }
 
 function libilityUpdater(liabilityDataShort, liabilityDataLong) {
     const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
