@@ -208,13 +208,21 @@ class Intuit extends Component {
     updateTableTotal(tablename, totalspan) {
         let assets = document.getElementById(tablename)
         let assetValues = assets.getElementsByClassName("editView")
+        let oldRate = 1;
+        let newRate = 1;
+        oldRate = this.state.currencyHistory[0].rate
+        if (this.state.currencyHistory.length === 2){
+            newRate = this.state.currencyHistory[1].rate
+        }
         console.log("update")
-        console.log(this.state.currencyHistory)
 
         let i
         let total = 0
+        let temp = 0;
         for (i = 0; i < assetValues.length; i++) {
-            total += parseFloat(assetValues[i].innerHTML)
+            temp = parseFloat(assetValues[i].innerHTML)  * oldRate / newRate
+            assetValues[i].innerHTML = temp.toFixed(2)
+            total += temp
         }
         document.getElementById(totalspan).innerHTML = total.toFixed(2);
         return total;
@@ -345,7 +353,7 @@ class Intuit extends Component {
         if (currencyHistory.length > 2){
             currencyHistory.splice(0,1)
         }
-        console.log(currencyHistory);
+        this.updateNetworth()
     }
 
     createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing) {
@@ -501,12 +509,16 @@ class Intuit extends Component {
             lineItems = liabilityDataLong
         }
         
+        let temp
         if (document.getElementById(elmID) !== null) {
             let currentElm = document.getElementById(elmID);
             if (elmID.startsWith("edit")) {
                 lineItems[index].label = value
             } else {
-                currentElm.innerHTML = Number(currentElm.innerHTML).toFixed(2)
+                temp = currentElm.innerHTML.replace("<br><br>","")
+                if (!isNaN(temp)){
+                    currentElm.innerHTML = Number(temp).toFixed(2)
+                }
                 lineItems[index].value = value
             }
         }
