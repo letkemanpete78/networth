@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import uuid from 'react-uuid'
-// import CurrencySelect from './CurrencySelect'
 
 class Intuit extends Component {
     state = {
@@ -78,7 +77,8 @@ class Intuit extends Component {
             value: 0.00,
             uuid: uuid(),
             type: "asset",
-            category: "short_term"
+            category: "short_term",
+            currency: this.state.selectedCurrency
         };
         this.setState({
             assetDataShort: [...this.state.assetDataShort, item]
@@ -91,7 +91,8 @@ class Intuit extends Component {
             value: 0.00,
             uuid: uuid(),
             type: "asset",
-            category: "long_term"
+            category: "long_term",
+            currency: this.state.selectedCurrency
         };
         this.setState({
             assetDataLong: [...this.state.assetDataLong, item]
@@ -104,7 +105,8 @@ class Intuit extends Component {
             value: 0.00,
             uuid: uuid(),
             type: "liability",
-            category: "short_term"
+            category: "short_term",
+            currency: this.state.selectedCurrency
         };
         this.setState({
             liabilityDataShort: [...this.state.liabilityDataShort, item]
@@ -117,7 +119,8 @@ class Intuit extends Component {
             value: 0.00,
             uuid: uuid(),
             type: "liability",
-            category: "long_term"
+            category: "long_term",
+            currency: this.state.selectedCurrency
         };
         this.setState({
             liabilityDataLong: [...this.state.liabilityDataLong, item]
@@ -142,8 +145,6 @@ class Intuit extends Component {
 
         this.loadLongLibilities(urlLongLiability)
         this.state.currencyHistory.push(this.state.moneySymbols[0])
-
-        
 
     }
 
@@ -193,51 +194,64 @@ class Intuit extends Component {
             .then(result => {
                 this.setState({
                     moneySymbols: result,
-                    
+
                 })
                 this.state.currencyHistory.push(this.state.moneySymbols[0])
 
-                if (typeof this.state.currencyHistory[0] === 'undefined'){
-                    this.state.currencyHistory.splice(0,1)
+                if (typeof this.state.currencyHistory[0] === 'undefined') {
+                    this.state.currencyHistory.splice(0, 1)
 
                 }
             })
-            
     }
 
-    updateTableTotal(tablename, totalspan) {
-        let assets = document.getElementById(tablename)
-        let assetValues = assets.getElementsByClassName("editView")
+    updateTableTotal(convertCurrency) {
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
+
         let oldRate = 1;
         let newRate = 1;
         oldRate = this.state.currencyHistory[0].rate
-        if (this.state.currencyHistory.length === 2){
+        if (this.state.currencyHistory.length === 2) {
             newRate = this.state.currencyHistory[1].rate
         }
-        console.log("update")
+        let selectedCurrency = this.state.currencyHistory[1]
 
-        let i
-        let total = 0
-        let temp = 0;
-        for (i = 0; i < assetValues.length; i++) {
-            temp = parseFloat(assetValues[i].innerHTML)  * oldRate / newRate
-            assetValues[i].innerHTML = temp.toFixed(2)
-            total += temp
-        }
-        document.getElementById(totalspan).innerHTML = total.toFixed(2);
-        return total;
+        assetDataShort.forEach(function (asset) {
+            asset.currency = selectedCurrency
+        })
+        assetDataLong.forEach(function (asset) {
+            asset.currency = selectedCurrency
+        })
+        liabilityDataShort.forEach(function (asset) {
+            asset.currency = selectedCurrency
+        })
+        liabilityDataLong.forEach(function (asset) {
+            asset.currency = selectedCurrency
+        })
+
+
+        this.setState({
+            selectedCurrency : this.state.currencyHistory[1],
+            assetTotal: assetUpdater(assetDataShort, assetDataLong),
+            liabilityTotal: libilityUpdater(liabilityDataShort, liabilityDataLong),
+        })
     }
 
-    updateNetworth() {
+    updateNetworth(convertCurrency) {
+
         const urlFormPost = 'http://localhost:8080/submitdata'
 
-        let totalAssets = this.updateTableTotal("assetTable", "assetTotal");
-        let totalLiability = this.updateTableTotal("liabilityTable", "liabilityTotal");
-        let totalworth = totalAssets - totalLiability
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, assetTotal, liabilityTotal } = this.state
+
+
+        this.updateTableTotal(convertCurrency);
+        let totalworth = assetTotal - liabilityTotal
         document.getElementById("networth").innerHTML = totalworth.toFixed(2);
 
-        let dataToSend = this.getDataItems("assetTable");
-        dataToSend.push(...this.getDataItems("liabilityTable"));
+        let dataToSend = assetDataShort
+        dataToSend.push(...assetDataLong);
+        dataToSend.push(...liabilityDataShort);
+        dataToSend.push(...liabilityDataLong);
 
         fetch(urlFormPost, {
             method: 'POST',
@@ -245,46 +259,19 @@ class Intuit extends Component {
         });
     }
 
-    getDataItems(tableName) {
-        let dataToSend1 = [];
-        let domItems = document.getElementById(tableName).querySelectorAll("[id^='edit']")
-
-        let records
-        let uuid;
-        let label;
-        let value;
-        domItems.forEach(function (userItem) {
-            records = userItem.getAttribute("dataname").toUpperCase().split("DATA");
-            uuid = userItem.id.replace("edit-", "");
-            label = userItem.innerHTML;
-            value = document.getElementById(uuid).innerHTML;
-            let rec = { uuid: uuid, type: records[0], category: records[1] + "_TERM", label: label, value: value };
-            dataToSend1.push(rec);
-        });
-        return dataToSend1;
-    }
-
-
     render() {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols } = this.state
-        
 
         let assetTotal = assetUpdater(assetDataShort, assetDataLong)
-
         let liabilityTotal = libilityUpdater(liabilityDataShort, liabilityDataLong)
-
 
         const InlineEditor = props => {
             return this.createInlineEditor(props, this.state)
         }
 
-
         const resultAssetShort = this.newLineItemRow(this.state, InlineEditor, "assetDataShort")
-
         const resultAssetLong = this.newLineItemRow(this.state, InlineEditor, "assetDataLong")
-
         const resultLiabilityShort = this.newLineItemRow(this.state, InlineEditor, "liabilityDataShort")
-
         const resultLiabilityLong = this.newLineItemRow(this.state, InlineEditor, "liabilityDataLong")
 
         const CalcNetworth = () => {
@@ -311,22 +298,25 @@ class Intuit extends Component {
 
         const CurrencySelect = (props) => {
             const { moneySymbols } = props
-            const {currencyHistory} = this.state
+            const { currencyHistory } = this.state
 
             let moneyOptions = moneySymbols.map((item, i) => {
                 return (
                     <option key={i} value={item.symbol}>{item.symbol}</option>
                 )
             }, this);
-        
+            let selectedValue = this.state.selectedCurrency
+            if (typeof this.state.selectedCurrency !== 'undefined'){
+                selectedValue = this.state.selectedCurrency.symbol
+            }
             return (
-                <select name="currency" 
-                    onChange={(e) => this.currencyChange(e, moneySymbols,currencyHistory)}
-                    >
+                <select name="currency"
+                    value={selectedValue}
+                    onChange={(e) => this.currencyChange(e, moneySymbols, currencyHistory)}
+                >
                     {moneyOptions}
                 </select>
             )
-        
         }
 
         const MainTable = () => {
@@ -345,15 +335,19 @@ class Intuit extends Component {
 
     currencyChange(event, moneySymbols, currencyHistory) {
         let i
-        for ( i =0;i<moneySymbols.length;i++){
-            if (event.target.value === moneySymbols[i].symbol){
+        for (i = 0; i < moneySymbols.length; i++) {
+            if (event.target.value === moneySymbols[i].symbol) {
                 currencyHistory.push(moneySymbols[i])
+                this.setState({
+                    selectedCurrency: moneySymbols[i],
+                })
             }
+            
         }
-        if (currencyHistory.length > 2){
-            currencyHistory.splice(0,1)
+        if (currencyHistory.length > 2) {
+            currencyHistory.splice(0, 1)
         }
-        this.updateNetworth()
+        this.updateNetworth(true)
     }
 
     createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing) {
@@ -470,7 +464,7 @@ class Intuit extends Component {
         } else {
             lineItems = liabilityDataLong
         }
-        
+
         if (document.getElementById(elmID) !== null) {
             let currentElm = document.getElementById(elmID)
             if (elmID.startsWith("edit")) {
@@ -496,8 +490,7 @@ class Intuit extends Component {
 
     handleOnBlur(value, elmID, index, dsName, state) {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = state
-        console.log("index : " + index)
-       
+
         let lineItems;
         if (dsName === "assetDataShort") {
             lineItems = assetDataShort
@@ -508,21 +501,21 @@ class Intuit extends Component {
         } else {
             lineItems = liabilityDataLong
         }
-        
+
         let temp
         if (document.getElementById(elmID) !== null) {
             let currentElm = document.getElementById(elmID);
             if (elmID.startsWith("edit")) {
                 lineItems[index].label = value
             } else {
-                temp = currentElm.innerHTML.replace("<br><br>","")
-                if (!isNaN(temp)){
+                temp = currentElm.innerHTML.replace("<br><br>", "")
+                if (!isNaN(temp)) {
                     currentElm.innerHTML = Number(temp).toFixed(2)
                 }
                 lineItems[index].value = value
             }
         }
-        this.updateNetworth()
+        this.updateNetworth(false)
     }
 
     newLineItemRow(state, InlineEditor, dataSetName) {
@@ -552,7 +545,7 @@ class Intuit extends Component {
                 <td width="60%">
                     <InlineEditor val={tempLabel} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} index={index} />
                 </td>
-                <td width="3%" style={{ lineHeight: "3" }} valign="bottom"><div>$</div></td>
+                <td width="3%" style={{ verticalAlign: "top" }}><div>$</div></td>
                 <td width="37%">
                     <div style={{ float: "right" }}>
                         <InlineEditor val={tempNum} elmClass="editView" elmType="number" elmID={entry.uuid} index={index} dsName={dataSetName} />
@@ -564,18 +557,9 @@ class Intuit extends Component {
             </tr>
         })
     }
-
-
-    
-
 }
 
 export default Intuit
-
-// function currencyChange(event, moneySymbols) {
-//     console.log(event.target.value);
-//     console.log(moneySymbols);
-// }
 
 function libilityUpdater(liabilityDataShort, liabilityDataLong) {
     const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
