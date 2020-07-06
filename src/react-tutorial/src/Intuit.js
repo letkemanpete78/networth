@@ -10,7 +10,8 @@ class Intuit extends Component {
         liabilityDataLong: [],
         liabilityTotal: 0,
         moneySymbols: [],
-        currencyHistory: []
+        currencyHistory: [],
+        selectedCurrency: ' '
     }
 
     removeRow = (index, dataset) => {
@@ -68,7 +69,6 @@ class Intuit extends Component {
             method: 'POST',
             body: JSON.stringify(deleteUUID),
         });
-        console.log(deleteUUID);
     }
 
     handleAddAssetShortRow = () => {
@@ -76,8 +76,8 @@ class Intuit extends Component {
             label: "",
             value: 0.00,
             uuid: uuid(),
-            type: "asset",
-            category: "short_term",
+            type: "ASSET",
+            category: "SHORT_TERM",
             currency: this.state.selectedCurrency
         };
         this.setState({
@@ -90,8 +90,8 @@ class Intuit extends Component {
             label: "",
             value: 0.00,
             uuid: uuid(),
-            type: "asset",
-            category: "long_term",
+            type: "ASSET",
+            category: "LONG_TERM",
             currency: this.state.selectedCurrency
         };
         this.setState({
@@ -104,8 +104,8 @@ class Intuit extends Component {
             label: "",
             value: 0.00,
             uuid: uuid(),
-            type: "liability",
-            category: "short_term",
+            type: "LIABILITY",
+            category: "SHORT_TERM",
             currency: this.state.selectedCurrency
         };
         this.setState({
@@ -118,8 +118,8 @@ class Intuit extends Component {
             label: "",
             value: 0.00,
             uuid: uuid(),
-            type: "liability",
-            category: "long_term",
+            type: "LIABILITY",
+            category: "LONG_TERM",
             currency: this.state.selectedCurrency
         };
         this.setState({
@@ -146,12 +146,19 @@ class Intuit extends Component {
         this.loadLongLibilities(urlLongLiability)
         this.state.currencyHistory.push(this.state.moneySymbols[0])
 
+
+
     }
 
     loadLongLibilities(urlLongLiability) {
         fetch(urlLongLiability)
             .then(result => result.json())
             .then(result => {
+                if (result.length !== 0){
+                    this.setState({
+                        selectedCurrency: result[0].currency,
+                    })
+                }
                 this.setState({
                     liabilityDataLong: result,
                 })
@@ -162,6 +169,11 @@ class Intuit extends Component {
         fetch(urlShortLiability)
             .then(result => result.json())
             .then(result => {
+                if (result.length !== 0){
+                    this.setState({
+                        selectedCurrency: result[0].currency,
+                    })
+                }
                 this.setState({
                     liabilityDataShort: result,
                 })
@@ -172,6 +184,11 @@ class Intuit extends Component {
         fetch(urlLongAsset)
             .then(result => result.json())
             .then(result => {
+                if (result.length !== 0){
+                    this.setState({
+                        selectedCurrency: result[0].currency,
+                    })
+                }
                 this.setState({
                     assetDataLong: result,
                 })
@@ -179,9 +196,15 @@ class Intuit extends Component {
     }
 
     loadShortAssets(urlShortAsset) {
+        
         fetch(urlShortAsset)
             .then(result => result.json())
             .then(result => {
+                if (result.length !== 0){
+                    this.setState({
+                        selectedCurrency: result[0].currency,
+                    })
+                }
                 this.setState({
                     assetDataShort: result,
                 })
@@ -200,7 +223,6 @@ class Intuit extends Component {
 
                 if (typeof this.state.currencyHistory[0] === 'undefined') {
                     this.state.currencyHistory.splice(0, 1)
-
                 }
             })
     }
@@ -218,35 +240,41 @@ class Intuit extends Component {
 
         assetDataShort.forEach(function (asset) {
             asset.currency = selectedCurrency
+            asset.value = asset.value * oldRate / newRate
         })
         assetDataLong.forEach(function (asset) {
             asset.currency = selectedCurrency
+            asset.value = asset.value * oldRate / newRate
         })
         liabilityDataShort.forEach(function (asset) {
             asset.currency = selectedCurrency
+            asset.value = asset.value * oldRate / newRate
         })
         liabilityDataLong.forEach(function (asset) {
             asset.currency = selectedCurrency
+            asset.value = asset.value * oldRate / newRate
         })
 
+
+        
+
+        let newAssetTotal = this.assetUpdater(assetDataShort, assetDataLong)
+        let newLiabilityTotal = this.libilityUpdater(liabilityDataShort, liabilityDataLong)
+        let newNetworth = newAssetTotal - newLiabilityTotal
 
         this.setState({
             selectedCurrency : this.state.currencyHistory[1],
-            assetTotal: assetUpdater(assetDataShort, assetDataLong),
-            liabilityTotal: libilityUpdater(liabilityDataShort, liabilityDataLong),
+            assetTotal: newAssetTotal,
+            liabilityTotal: newLiabilityTotal,
+            networth: newNetworth
         })
     }
 
-    updateNetworth(convertCurrency) {
+    submitData() {
 
         const urlFormPost = 'http://localhost:8080/submitdata'
 
-        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, assetTotal, liabilityTotal } = this.state
-
-
-        this.updateTableTotal(convertCurrency);
-        let totalworth = assetTotal - liabilityTotal
-        document.getElementById("networth").innerHTML = totalworth.toFixed(2);
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
 
         let dataToSend = assetDataShort
         dataToSend.push(...assetDataLong);
@@ -259,11 +287,14 @@ class Intuit extends Component {
         });
     }
 
+
     render() {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols } = this.state
 
-        let assetTotal = assetUpdater(assetDataShort, assetDataLong)
-        let liabilityTotal = libilityUpdater(liabilityDataShort, liabilityDataLong)
+        let assetTotal = this.assetUpdater(assetDataShort, assetDataLong)
+        let liabilityTotal = this.libilityUpdater(liabilityDataShort, liabilityDataLong)
+
+        let networth = assetTotal - liabilityTotal
 
         const InlineEditor = props => {
             return this.createInlineEditor(props, this.state)
@@ -273,10 +304,6 @@ class Intuit extends Component {
         const resultAssetLong = this.newLineItemRow(this.state, InlineEditor, "assetDataLong")
         const resultLiabilityShort = this.newLineItemRow(this.state, InlineEditor, "liabilityDataShort")
         const resultLiabilityLong = this.newLineItemRow(this.state, InlineEditor, "liabilityDataLong")
-
-        const CalcNetworth = () => {
-            return (assetTotal - liabilityTotal).toFixed(2)
-        }
 
         const AssetTable = () => {
             return (
@@ -324,7 +351,7 @@ class Intuit extends Component {
                 <div>
                     <h1>Tracking your Networth</h1>
                     <div>Select Currency: <CurrencySelect moneySymbols={moneySymbols} /></div>
-                    Networth: <div id="networth" style={{ display: "inline" }}><CalcNetworth /></div>
+                    Networth: <div id="networth" style={{ display: "inline" }}>{networth}</div>
                     <AssetTable />
                     <LiabilityTable />
                 </div>
@@ -347,7 +374,9 @@ class Intuit extends Component {
         if (currencyHistory.length > 2) {
             currencyHistory.splice(0, 1)
         }
-        this.updateNetworth(true)
+        console.log("currency change")
+        this.updateTableTotal(true);
+        this.submitData()
     }
 
     createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing) {
@@ -464,17 +493,19 @@ class Intuit extends Component {
         } else {
             lineItems = liabilityDataLong
         }
-
+        let canSubmit = false
         if (document.getElementById(elmID) !== null) {
             let currentElm = document.getElementById(elmID)
             if (elmID.startsWith("edit")) {
                 lineItems[index].label = value
+                canSubmit = true
             } else {
                 let errorID = "error" + elmID;
                 let errorElm = document.getElementById(errorID)
                 if (isNaN(value)) {
                     errorElm.style.display = "inline"
                 } else {
+                    canSubmit = true
                     lineItems[index].value = value
                     if (value !== 0) {
                         currentElm.setAttribute("data-oldvalue", value)
@@ -485,6 +516,10 @@ class Intuit extends Component {
                     errorElm.style.display = "none"
                 }
             }
+        }
+        console.log("on input")
+        if (canSubmit){
+            this.submitData()
         }
     }
 
@@ -501,21 +536,13 @@ class Intuit extends Component {
         } else {
             lineItems = liabilityDataLong
         }
-
-        let temp
-        if (document.getElementById(elmID) !== null) {
-            let currentElm = document.getElementById(elmID);
-            if (elmID.startsWith("edit")) {
-                lineItems[index].label = value
-            } else {
-                temp = currentElm.innerHTML.replace("<br><br>", "")
-                if (!isNaN(temp)) {
-                    currentElm.innerHTML = Number(temp).toFixed(2)
-                }
-                lineItems[index].value = value
-            }
-        }
-        this.updateNetworth(false)
+        let assetTotal = this.assetUpdater(assetDataShort, assetDataLong)
+        let liabilityTotal = this.libilityUpdater(liabilityDataShort, liabilityDataLong)
+        this.setState({
+            networth:assetTotal-liabilityTotal
+        })
+        console.log("on blur")
+        this.submitData()
     }
 
     newLineItemRow(state, InlineEditor, dataSetName) {
@@ -557,21 +584,20 @@ class Intuit extends Component {
             </tr>
         })
     }
+
+    libilityUpdater(liabilityDataShort, liabilityDataLong) {
+        const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
+        const longLiabilitysTotal = liabilityDataLong.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
+        let liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal)
+        return liabilityTotal
+    }
+    
+    assetUpdater(assetDataShort, assetDataLong) {
+        const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
+        const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
+        let assetTotal = parseFloat(shortAssetsTotal) + parseFloat(longAssetsTotal)
+        return assetTotal
+    }
 }
 
 export default Intuit
-
-function libilityUpdater(liabilityDataShort, liabilityDataLong) {
-    const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
-    const longLiabilitysTotal = liabilityDataLong.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
-    let liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal)
-    return liabilityTotal
-}
-
-function assetUpdater(assetDataShort, assetDataLong) {
-    const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
-    const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
-    let assetTotal = parseFloat(shortAssetsTotal) + parseFloat(longAssetsTotal)
-    return assetTotal
-}
-
