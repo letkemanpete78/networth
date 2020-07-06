@@ -127,6 +127,10 @@ public class NetworthController {
               x.setId(y.getId());
             }
           }
+          if (x.getCurrency() == null){
+            //set dfefault currency value
+            x.setCurrency(currencyList().get(0));
+          }
         })
         .collect(Collectors.toList());
     lineItemRepository.saveAll(updateItems);

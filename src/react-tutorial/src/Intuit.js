@@ -11,7 +11,7 @@ class Intuit extends Component {
         liabilityTotal: 0,
         moneySymbols: [],
         currencyHistory: [],
-        selectedCurrency: ' '
+        selectedCurrency: 'undefined'
     }
 
     removeRow = (index, dataset) => {
@@ -72,6 +72,7 @@ class Intuit extends Component {
     }
 
     handleAddAssetShortRow = () => {
+        console.log("handleAddAssetShortRow")
         const item = {
             label: "",
             value: 0.00,
@@ -86,6 +87,7 @@ class Intuit extends Component {
     };
 
     handleAddAssetLongRow = () => {
+        console.log("handleAddAssetLongRow")
         const item = {
             label: "",
             value: 0.00,
@@ -100,6 +102,7 @@ class Intuit extends Component {
     };
 
     handleAddLiabilityShortRow = () => {
+        console.log("handleAddLiabilityShortRow")
         const item = {
             label: "",
             value: 0.00,
@@ -114,6 +117,7 @@ class Intuit extends Component {
     };
 
     handleAddLiabilityLongRow = () => {
+        console.log("handleAddLiabilityLongRow")
         const item = {
             label: "",
             value: 0.00,
@@ -145,16 +149,13 @@ class Intuit extends Component {
 
         this.loadLongLibilities(urlLongLiability)
         this.state.currencyHistory.push(this.state.moneySymbols[0])
-
-
-
     }
 
     loadLongLibilities(urlLongLiability) {
         fetch(urlLongLiability)
             .then(result => result.json())
             .then(result => {
-                if (result.length !== 0){
+                if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
                     })
@@ -169,7 +170,7 @@ class Intuit extends Component {
         fetch(urlShortLiability)
             .then(result => result.json())
             .then(result => {
-                if (result.length !== 0){
+                if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
                     })
@@ -184,7 +185,7 @@ class Intuit extends Component {
         fetch(urlLongAsset)
             .then(result => result.json())
             .then(result => {
-                if (result.length !== 0){
+                if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
                     })
@@ -196,11 +197,10 @@ class Intuit extends Component {
     }
 
     loadShortAssets(urlShortAsset) {
-        
         fetch(urlShortAsset)
             .then(result => result.json())
             .then(result => {
-                if (result.length !== 0){
+                if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
                     })
@@ -217,7 +217,6 @@ class Intuit extends Component {
             .then(result => {
                 this.setState({
                     moneySymbols: result,
-
                 })
                 this.state.currencyHistory.push(this.state.moneySymbols[0])
 
@@ -255,15 +254,12 @@ class Intuit extends Component {
             asset.value = asset.value * oldRate / newRate
         })
 
-
-        
-
         let newAssetTotal = this.assetUpdater(assetDataShort, assetDataLong)
         let newLiabilityTotal = this.libilityUpdater(liabilityDataShort, liabilityDataLong)
         let newNetworth = newAssetTotal - newLiabilityTotal
 
         this.setState({
-            selectedCurrency : this.state.currencyHistory[1],
+            selectedCurrency: this.state.currencyHistory[1],
             assetTotal: newAssetTotal,
             liabilityTotal: newLiabilityTotal,
             networth: newNetworth
@@ -272,12 +268,14 @@ class Intuit extends Component {
 
     submitData() {
 
+        this.updateTableTotal(false)
         const urlFormPost = 'http://localhost:8080/submitdata'
 
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
 
-        let dataToSend = assetDataShort
-        dataToSend.push(...assetDataLong);
+        let dataToSend = []
+        dataToSend.push(...assetDataShort)
+        dataToSend.push(...assetDataLong)
         dataToSend.push(...liabilityDataShort);
         dataToSend.push(...liabilityDataLong);
 
@@ -286,7 +284,6 @@ class Intuit extends Component {
             body: JSON.stringify(dataToSend),
         });
     }
-
 
     render() {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols } = this.state
@@ -307,19 +304,13 @@ class Intuit extends Component {
 
         const AssetTable = () => {
             return (
-                this.createAssetTable(resultAssetShort, resultAssetLong, assetTotal, ExtraSpacing)
+                this.createAssetTable(resultAssetShort, resultAssetLong, assetTotal)
             )
         }
 
         const LiabilityTable = () => {
             return (
-                this.createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing)
-            )
-        }
-
-        const ExtraSpacing = () => {
-            return (
-                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                this.createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal)
             )
         }
 
@@ -333,8 +324,12 @@ class Intuit extends Component {
                 )
             }, this);
             let selectedValue = this.state.selectedCurrency
-            if (typeof this.state.selectedCurrency !== 'undefined'){
-                selectedValue = this.state.selectedCurrency.symbol
+            if (typeof this.state.selectedCurrency !== 'undefined') {
+                try {
+                    selectedValue = this.state.selectedCurrency.symbol
+                } catch (error) {
+                    selectedValue = ''
+                }
             }
             return (
                 <select name="currency"
@@ -351,7 +346,7 @@ class Intuit extends Component {
                 <div>
                     <h1>Tracking your Networth</h1>
                     <div>Select Currency: <CurrencySelect moneySymbols={moneySymbols} /></div>
-                    Networth: <div id="networth" style={{ display: "inline" }}>{networth}</div>
+                    Networth: $<span id="networth" style={{ display: "inline" }}>{networth.toFixed(2)}</span>
                     <AssetTable />
                     <LiabilityTable />
                 </div>
@@ -369,17 +364,17 @@ class Intuit extends Component {
                     selectedCurrency: moneySymbols[i],
                 })
             }
-            
         }
+
         if (currencyHistory.length > 2) {
             currencyHistory.splice(0, 1)
         }
-        console.log("currency change")
+
         this.updateTableTotal(true);
         this.submitData()
     }
 
-    createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal, ExtraSpacing) {
+    createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal) {
         return <table id="liabilityTable">
             <thead><tr><th colSpan="3"><h4>Liabilities</h4></th></tr></thead>
             <tbody>
@@ -410,13 +405,13 @@ class Intuit extends Component {
                 <tr>
                     <td><h4>Total Liabilties:</h4></td>
                     <td valign="middle"><h4>$</h4></td>
-                    <td ><h4 style={{ float: "right" }}><span id="liabilityTotal">{liabilityTotal.toFixed(2)}</span><ExtraSpacing /></h4></td>
+                    <td ><h4 style={{ float: "right" }}><span id="liabilityTotal">{liabilityTotal.toFixed(2)}</span></h4></td>
                 </tr>
             </tfoot>
         </table>
     }
 
-    createAssetTable(resultAssetShort, resultAssetLong, assetTotal, ExtraSpacing) {
+    createAssetTable(resultAssetShort, resultAssetLong, assetTotal) {
         return <table id="assetTable">
             <thead><tr><th colSpan="3"><h4>Assets</h4></th></tr></thead>
             <tbody>
@@ -447,7 +442,7 @@ class Intuit extends Component {
                 <tr>
                     <td><h4>Total Assets:</h4></td>
                     <td valign="middle"><h4>$</h4></td>
-                    <td><h4 style={{ float: "right" }}><span id="assetTotal">{assetTotal.toFixed(2)}</span><ExtraSpacing /></h4></td>
+                    <td><h4 style={{ float: "right" }}><span id="assetTotal">{assetTotal.toFixed(2)}</span></h4></td>
                 </tr>
             </tfoot>
         </table>
@@ -480,6 +475,7 @@ class Intuit extends Component {
             </p>
         )
     }
+
     handleOnInput(value, elmID, index, dsName, state) {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = state
 
@@ -493,6 +489,7 @@ class Intuit extends Component {
         } else {
             lineItems = liabilityDataLong
         }
+
         let canSubmit = false
         if (document.getElementById(elmID) !== null) {
             let currentElm = document.getElementById(elmID)
@@ -511,14 +508,13 @@ class Intuit extends Component {
                         currentElm.setAttribute("data-oldvalue", value)
                         document.getElementById("pv" + elmID).innerHTML = Number(value).toFixed(2)
                     } else {
-                        currentElm.innerHTML = 0.00
+                        lineItems[index].value = 0.00
                     }
                     errorElm.style.display = "none"
                 }
             }
         }
-        console.log("on input")
-        if (canSubmit){
+        if (canSubmit) {
             this.submitData()
         }
     }
@@ -526,22 +522,11 @@ class Intuit extends Component {
     handleOnBlur(value, elmID, index, dsName, state) {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = state
 
-        let lineItems;
-        if (dsName === "assetDataShort") {
-            lineItems = assetDataShort
-        } else if (dsName === "assetDataLong") {
-            lineItems = assetDataLong
-        } else if (dsName === "liabilityDataShort") {
-            lineItems = liabilityDataShort
-        } else {
-            lineItems = liabilityDataLong
-        }
         let assetTotal = this.assetUpdater(assetDataShort, assetDataLong)
         let liabilityTotal = this.libilityUpdater(liabilityDataShort, liabilityDataLong)
         this.setState({
-            networth:assetTotal-liabilityTotal
+            networth: assetTotal - liabilityTotal
         })
-        console.log("on blur")
         this.submitData()
     }
 
@@ -557,6 +542,7 @@ class Intuit extends Component {
         } else if (dataSetName === "liabilityDataLong") {
             lineItems = liabilityDataLong
         }
+
         return lineItems.map((entry, index) => {
             let tempLabel = ""
             let tempNum = 0.00
@@ -591,7 +577,7 @@ class Intuit extends Component {
         let liabilityTotal = parseFloat(shortLiabilitysTotal) + parseFloat(longLiabilitysTotal)
         return liabilityTotal
     }
-    
+
     assetUpdater(assetDataShort, assetDataLong) {
         const shortAssetsTotal = assetDataShort.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
         const longAssetsTotal = assetDataLong.reduce((totalAssets, asset) => totalAssets + parseFloat(asset.value, 10), 0).toFixed(2)
