@@ -140,6 +140,7 @@ class Intuit extends Component {
         const urlCurrencies = 'http://localhost:8080/currencies'
 
         this.loadCurrencies(urlCurrencies)
+        this.state.currencyHistory.push(this.state.moneySymbols[0])
 
         this.loadShortAssets(urlShortAsset)
 
@@ -147,8 +148,7 @@ class Intuit extends Component {
 
         this.loadShortLibilities(urlShortLiability)
 
-        this.loadLongLibilities(urlLongLiability)
-        this.state.currencyHistory.push(this.state.moneySymbols[0])
+        this.loadLongLibilities(urlLongLiability)   
     }
 
     loadLongLibilities(urlLongLiability) {
@@ -219,14 +219,13 @@ class Intuit extends Component {
                     moneySymbols: result,
                 })
                 this.state.currencyHistory.push(this.state.moneySymbols[0])
-
                 if (typeof this.state.currencyHistory[0] === 'undefined') {
                     this.state.currencyHistory.splice(0, 1)
                 }
             })
     }
 
-    updateTableTotal(convertCurrency) {
+    updateTableTotal() {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
 
         let oldRate = 1;
@@ -267,8 +266,7 @@ class Intuit extends Component {
     }
 
     submitData() {
-
-        this.updateTableTotal(false)
+        this.updateTableTotal()
         const urlFormPost = 'http://localhost:8080/submitdata'
 
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
@@ -318,7 +316,7 @@ class Intuit extends Component {
             const { moneySymbols } = props
             const { currencyHistory } = this.state
 
-            let moneyOptions = moneySymbols.map((item, i) => {
+            const moneyOptions = moneySymbols.map((item, i) => {
                 return (
                     <option key={i} value={item.symbol}>{item.symbol}</option>
                 )
@@ -370,7 +368,7 @@ class Intuit extends Component {
             currencyHistory.splice(0, 1)
         }
 
-        this.updateTableTotal(true);
+        this.updateTableTotal();
         this.submitData()
     }
 
@@ -449,7 +447,7 @@ class Intuit extends Component {
     }
 
     createInlineEditor(props, state) {
-        const { val, elmClass, elmType, elmID, dsName, index } = props
+        const { val, elmClass, elmID, dsName, index } = props
 
         let errorID = 'error' + elmID
         let pvID = 'pv' + elmID
@@ -464,7 +462,6 @@ class Intuit extends Component {
                     onInput={e => this.handleOnInput(e.currentTarget.textContent, elmID, index, dsName, state)}
                     onBlur={e => this.handleOnBlur(e.currentTarget.textContent, elmID, index, dsName, state)}
                     data-oldvalue={val}
-
                 >
                     {String(val)}
                 </span>

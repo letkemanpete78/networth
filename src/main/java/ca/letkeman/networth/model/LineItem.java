@@ -26,7 +26,8 @@ public class LineItem {
   public LineItem() {
   }
 
-  public LineItem(Integer id,String uuid, Type type, Category category, String label, float value, Currency currency) {
+  public LineItem(Integer id, String uuid, Type type, Category category, String label, float value,
+      Currency currency) {
     this.id = id;
     this.uuid = uuid;
     this.type = type;
@@ -129,13 +130,13 @@ public class LineItem {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id",id)
+        .append("id", id)
         .append("uuid", uuid)
         .append("type", type)
         .append("category", category)
         .append("label", label)
         .append("value", value)
-        .append("currency",currency)
+        .append("currency", currency)
         .toString();
   }
 

@@ -40,7 +40,7 @@ public class NetworthController {
   @PostMapping(path = "/deletedata")
   public @ResponseBody
   boolean deleteItems(@RequestBody String payload) {
-    String uuid = payload.replace("\"","");
+    String uuid = payload.replace("\"", "");
     lineItemRepository.deleteByuuid(uuid);
     return true;
   }
@@ -48,7 +48,12 @@ public class NetworthController {
   @GetMapping(path = "/all")
   public @ResponseBody
   Iterable<LineItem> getItems() {
-//    return lineItemRepository.findAll();
+    return lineItemRepository.findAll();
+  }
+
+  @GetMapping(path = "/dummy")
+  public @ResponseBody
+  Iterable<LineItem> getdummyItems() {
     return createDummyData();
   }
 
@@ -59,9 +64,12 @@ public class NetworthController {
     return "server found";
   }
 
-  @RequestMapping(value = "/", method = RequestMethod.GET, produces = {
-      MediaType.APPLICATION_JSON_VALUE}, consumes = MediaType.ALL_VALUE)
-  public String renderPage(@RequestParam(value = "type", defaultValue = "asset") String type,
+  @RequestMapping(value = "/",
+      method = RequestMethod.GET,
+      produces = {MediaType.APPLICATION_JSON_VALUE},
+      consumes = MediaType.ALL_VALUE)
+  public String renderPage(
+      @RequestParam(value = "type", defaultValue = "asset") String type,
       @RequestParam(value = "category", defaultValue = "long_term") String category) {
     List<LineItem> lineItems = (List<LineItem>) lineItemRepository.findAll();
 
@@ -69,44 +77,53 @@ public class NetworthController {
 
     try {
       return mapperObj.writeValueAsString(lineItems.stream()
-          .filter(x -> x.getCategory().toString().toLowerCase().equals(category.toLowerCase()) && x
-              .getType().toString().toLowerCase().equals(type.toLowerCase()))
+          .filter(x -> x.getCategory()
+              .toString()
+              .toLowerCase()
+              .equals(category.toLowerCase()) && x
+              .getType().toString()
+              .toLowerCase()
+              .equals(type.toLowerCase()))
           .toArray());
     } catch (JsonProcessingException e) {
       e.printStackTrace();
-      return "";
+      return "error";
     }
   }
 
-  @RequestMapping(value = "/getrate", method = RequestMethod.GET, produces = {
-      MediaType.APPLICATION_JSON_VALUE}, consumes = MediaType.ALL_VALUE)
+  @RequestMapping(value = "/getrate",
+      method = RequestMethod.GET,
+      produces = {MediaType.APPLICATION_JSON_VALUE},
+      consumes = MediaType.ALL_VALUE)
   public String getRate(@RequestParam(value = "symbol", defaultValue = "CAD") String symbol) {
     ObjectMapper mapperObj = new ObjectMapper();
     try {
       return mapperObj.writeValueAsString(getRateBySymbol(symbol));
     } catch (JsonProcessingException e) {
       e.printStackTrace();
-      return "";
+      return "error";
     }
   }
 
-  @RequestMapping(value = "/currencies", method = RequestMethod.GET, produces = {
-      MediaType.APPLICATION_JSON_VALUE}, consumes = MediaType.ALL_VALUE)
-  public String getcurrencies(){
+  @RequestMapping(value = "/currencies",
+      method = RequestMethod.GET,
+      produces = {MediaType.APPLICATION_JSON_VALUE},
+      consumes = MediaType.ALL_VALUE)
+  public String getcurrencies() {
     ObjectMapper mapperObj = new ObjectMapper();
     try {
       return mapperObj.writeValueAsString(currencyList());
     } catch (JsonProcessingException e) {
       e.printStackTrace();
-      return "";
+      return "error";
     }
   }
 
-  private Currency getRateBySymbol(String symbol){
+  private Currency getRateBySymbol(String symbol) {
     return currencyRepository.findBySymbol(symbol);
   }
 
-  private List<Currency> currencyList(){
+  private List<Currency> currencyList() {
     return (List<Currency>) currencyRepository.findAll();
   }
 
@@ -127,7 +144,7 @@ public class NetworthController {
               x.setId(y.getId());
             }
           }
-          if (x.getCurrency() == null){
+          if (x.getCurrency() == null) {
             //set dfefault currency value
             x.setCurrency(currencyList().get(0));
           }
@@ -147,7 +164,7 @@ public class NetworthController {
               "label " + i,
               (float) (baseValue * i * i),
               getRateBySymbol("cad")
-      ));
+          ));
     }
     for (int i = 6; i < 11; i++) {
       lineItems.add(
