@@ -65,6 +65,7 @@ class Intuit extends Component {
             })
         }
 
+        console.log(JSON.stringify(deleteUUID))
         fetch(urlFormPost, {
             method: 'POST',
             body: JSON.stringify(deleteUUID),
@@ -511,9 +512,9 @@ class Intuit extends Component {
                 }
             }
         }
-        if (canSubmit) {
-            this.submitData()
-        }
+        // if (canSubmit) {
+        //     this.submitData()
+        // }
     }
 
     handleOnBlur(value, elmID, index, dsName, state) {
