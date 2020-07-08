@@ -226,31 +226,38 @@ class Intuit extends Component {
             })
     }
 
-    updateTableTotal() {
+    updateTableTotal(currency) {
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
+  
 
         let oldRate = 1;
         let newRate = 1;
         oldRate = this.state.currencyHistory[0].rate
         if (this.state.currencyHistory.length === 2) {
             newRate = this.state.currencyHistory[1].rate
+            // selectedCurrency = this.state.currencyHistory[1]
+        } else {
+            newRate = oldRate
         }
-        let selectedCurrency = this.state.currencyHistory[1]
+        console.log("updateTableTotal")
+        console.log("selectedCurrency")
+        console.log(currency)
+
 
         assetDataShort.forEach(function (asset) {
-            asset.currency = selectedCurrency
+            asset.currency = currency
             asset.value = asset.value * oldRate / newRate
         })
         assetDataLong.forEach(function (asset) {
-            asset.currency = selectedCurrency
+            asset.currency = currency
             asset.value = asset.value * oldRate / newRate
         })
         liabilityDataShort.forEach(function (asset) {
-            asset.currency = selectedCurrency
+            asset.currency = currency
             asset.value = asset.value * oldRate / newRate
         })
         liabilityDataLong.forEach(function (asset) {
-            asset.currency = selectedCurrency
+            asset.currency = currency
             asset.value = asset.value * oldRate / newRate
         })
 
@@ -259,15 +266,15 @@ class Intuit extends Component {
         let newNetworth = newAssetTotal - newLiabilityTotal
 
         this.setState({
-            selectedCurrency: this.state.currencyHistory[1],
+            // selectedCurrency: this.state.currencyHistory[1],
             assetTotal: newAssetTotal,
             liabilityTotal: newLiabilityTotal,
             networth: newNetworth
         })
     }
 
-    submitData() {
-        this.updateTableTotal()
+    submitData(currency) {
+        this.updateTableTotal(currency)
         const urlFormPost = 'http://localhost:8080/submitdata'
 
         const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = this.state
@@ -285,7 +292,7 @@ class Intuit extends Component {
     }
 
     render() {
-        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols } = this.state
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, moneySymbols, selectedCurrency } = this.state
 
         let assetTotal = this.assetUpdater(assetDataShort, assetDataLong)
         let liabilityTotal = this.libilityUpdater(liabilityDataShort, liabilityDataLong)
@@ -322,17 +329,17 @@ class Intuit extends Component {
                     <option key={i} value={item.symbol}>{item.symbol}</option>
                 )
             }, this);
-            let selectedValue = this.state.selectedCurrency
-            if (typeof this.state.selectedCurrency !== 'undefined') {
+            let selectedSymbol
+            if (typeof selectedCurrency !== 'undefined') {
                 try {
-                    selectedValue = this.state.selectedCurrency.symbol
+                    selectedSymbol = selectedCurrency.symbol
                 } catch (error) {
-                    selectedValue = ''
+                    // selectedSymbol = ''
                 }
             }
             return (
                 <select name="currency"
-                    value={selectedValue}
+                    value={selectedSymbol}
                     onChange={(e) => this.currencyChange(e, moneySymbols, currencyHistory)}
                 >
                     {moneyOptions}
@@ -356,12 +363,16 @@ class Intuit extends Component {
 
     currencyChange(event, moneySymbols, currencyHistory) {
         let i
+        let tempItem
         for (i = 0; i < moneySymbols.length; i++) {
             if (event.target.value === moneySymbols[i].symbol) {
                 currencyHistory.push(moneySymbols[i])
                 this.setState({
                     selectedCurrency: moneySymbols[i],
                 })
+                tempItem = moneySymbols[i]
+                console.log("moneySymbols[i]")
+                console.log(moneySymbols[i])
             }
         }
 
@@ -369,8 +380,7 @@ class Intuit extends Component {
             currencyHistory.splice(0, 1)
         }
 
-        this.updateTableTotal();
-        this.submitData()
+        this.submitData(tempItem)
     }
 
     createLibilityTable(resultLiabilityShort, resultLiabilityLong, liabilityTotal) {
@@ -488,19 +498,16 @@ class Intuit extends Component {
             lineItems = liabilityDataLong
         }
 
-        let canSubmit = false
         if (document.getElementById(elmID) !== null) {
             let currentElm = document.getElementById(elmID)
             if (elmID.startsWith("edit")) {
                 lineItems[index].label = value
-                canSubmit = true
             } else {
                 let errorID = "error" + elmID;
                 let errorElm = document.getElementById(errorID)
                 if (isNaN(value)) {
                     errorElm.style.display = "inline"
                 } else {
-                    canSubmit = true
                     lineItems[index].value = value
                     if (value !== 0) {
                         currentElm.setAttribute("data-oldvalue", value)
@@ -512,20 +519,17 @@ class Intuit extends Component {
                 }
             }
         }
-        // if (canSubmit) {
-        //     this.submitData()
-        // }
     }
 
     handleOnBlur(value, elmID, index, dsName, state) {
-        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong } = state
+        const { assetDataShort, assetDataLong, liabilityDataShort, liabilityDataLong, selectedCurrency } = state
 
         let assetTotal = this.assetUpdater(assetDataShort, assetDataLong)
         let liabilityTotal = this.libilityUpdater(liabilityDataShort, liabilityDataLong)
         this.setState({
             networth: assetTotal - liabilityTotal
         })
-        this.submitData()
+        this.submitData(selectedCurrency)
     }
 
     newLineItemRow(state, InlineEditor, dataSetName) {
