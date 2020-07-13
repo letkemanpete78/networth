@@ -65,7 +65,6 @@ class Intuit extends Component {
             })
         }
 
-        console.log(JSON.stringify(deleteUUID))
         fetch(urlFormPost, {
             method: 'POST',
             body: JSON.stringify(deleteUUID),
@@ -235,14 +234,9 @@ class Intuit extends Component {
         oldRate = this.state.currencyHistory[0].rate
         if (this.state.currencyHistory.length === 2) {
             newRate = this.state.currencyHistory[1].rate
-            // selectedCurrency = this.state.currencyHistory[1]
         } else {
             newRate = oldRate
         }
-        console.log("updateTableTotal")
-        console.log("selectedCurrency")
-        console.log(currency)
-
 
         assetDataShort.forEach(function (asset) {
             asset.currency = currency
@@ -266,7 +260,6 @@ class Intuit extends Component {
         let newNetworth = newAssetTotal - newLiabilityTotal
 
         this.setState({
-            // selectedCurrency: this.state.currencyHistory[1],
             assetTotal: newAssetTotal,
             liabilityTotal: newLiabilityTotal,
             networth: newNetworth
