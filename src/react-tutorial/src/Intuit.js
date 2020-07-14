@@ -238,6 +238,13 @@ class Intuit extends Component {
             newRate = oldRate
         }
 
+        if (currency === 'undefined'){
+            currency = this.state.currencyHistory[0]
+            this.setState({
+                currency: this.state.currencyHistory[0]
+            })
+        }
+
         assetDataShort.forEach(function (asset) {
             asset.currency = currency
             asset.value = asset.value * oldRate / newRate
