@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,11 +30,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class NetworthController {
 
-  @Autowired
-  private LineItemRepository lineItemRepository;
+  private final LineItemRepository lineItemRepository;
 
-  @Autowired
-  private CurrencyRepository currencyRepository;
+  private final CurrencyRepository currencyRepository;
+
+  public NetworthController(LineItemRepository lineItemRepository,
+      CurrencyRepository currencyRepository) {
+    this.lineItemRepository = lineItemRepository;
+    this.currencyRepository = currencyRepository;
+  }
+
 
   @PostMapping(path = "/deletedata")
   public @ResponseBody
@@ -65,15 +69,11 @@ public class NetworthController {
   @PostMapping("/submitdata")
   public String submitdata(@RequestBody String payload) {
     /*
-    sample payload without currency
-    [{"id":194,"uuid":"1e586e2-5d5c-7a3-6f7-eab271d501","type":"ASSET","category":"SHORT_TERM","label":"","value":6},
-    {"id":193,"uuid":"22763c3-717e-58b0-2dd6-d5854f510d","type":"LIABILITY","category":"SHORT_TERM","label":"","value":0.771603}]
-
-    sample payload with currency
+    sample payload
     [{"id":194,"uuid":"1e586e2-5d5c-7a3-6f7-eab271d501","type":"ASSET","category":"SHORT_TERM","label":"","value":4.166666666666667,"currency":{"id":2,"symbol":"USD","rate":1.2}},
     {"id":193,"uuid":"22763c3-717e-58b0-2dd6-d5854f510d","type":"LIABILITY","category":"SHORT_TERM","label":"","value":0.5358354166666667,"currency":{"id":2,"symbol":"USD","rate":1.2}}]
      */
-    System.out.println(updateLineItems(payload));
+    updateLineItems(payload);
     return "server found";
   }
 
@@ -95,24 +95,7 @@ public class NetworthController {
 [{"id":194,"uuid":"1e586e2-5d5c-7a3-6f7-eab271d501","type":"ASSET","category":"SHORT_TERM","label":"","value":22.0,"currency":{"id":1,"symbol":"CAD","rate":1.0}},
 {"id":195,"uuid":"3bdea-5d0b-02f7-58f6-cbdde6ac40","type":"ASSET","category":"SHORT_TERM","label":"","value":2222.0,"currency":{"id":1,"symbol":"CAD","rate":1.0}}]
      */
-    List<LineItem> lineItems = (List<LineItem>) lineItemRepository.findAll();
-
-    ObjectMapper mapperObj = new ObjectMapper();
-
-    try {
-      return mapperObj.writeValueAsString(lineItems.stream()
-          .filter(x -> x.getCategory()
-              .toString()
-              .toLowerCase()
-              .equals(category.toLowerCase()) && x
-              .getType().toString()
-              .toLowerCase()
-              .equals(type.toLowerCase()))
-          .toArray());
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-      return "error";
-    }
+    return getDataString(type, category);
   }
 
   @RequestMapping(value = "/getrate",
@@ -151,16 +134,36 @@ public class NetworthController {
     }
   }
 
-  private Currency getRateBySymbol(String symbol) {
+  protected String getDataString( String type, String category) {
+    List<LineItem> lineItems = (List<LineItem>) lineItemRepository.findAll();
+
+    ObjectMapper mapperObj = new ObjectMapper();
+
+    try {
+      return mapperObj.writeValueAsString(lineItems.stream()
+          .filter(x -> x.getCategory()
+              .toString()
+              .toLowerCase()
+              .equals(category.toLowerCase()) && x
+              .getType().toString()
+              .toLowerCase()
+              .equals(type.toLowerCase()))
+          .toArray());
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return "error";
+    }
+  }
+
+  protected Currency getRateBySymbol(String symbol) {
     return currencyRepository.findBySymbol(symbol);
   }
 
-  private List<Currency> currencyList() {
+  protected List<Currency> currencyList() {
     return (List<Currency>) currencyRepository.findAll();
   }
 
-  private String updateLineItems(String testStr) {
-    System.out.println(testStr);
+  protected String updateLineItems(String testStr) {
     List<LineItem> lineItems = null;
     try {
       lineItems = new ObjectMapper().readValue(testStr, new TypeReference<List<LineItem>>() {
@@ -182,8 +185,7 @@ public class NetworthController {
             }
           }
           if (x.getCurrency() == null) {
-            //set default currency value
-            x.setCurrency(currencyList().get(0));
+            new Exception("null currency");
           }
         })
         .collect(Collectors.toList());
@@ -192,7 +194,7 @@ public class NetworthController {
     return "updated\n" + updateItems.toString();
   }
 
-  private List<LineItem> createDummyData() {
+  protected List<LineItem> createDummyData() {
     double baseValue = 1472.94;
     List<LineItem> lineItems = new ArrayList<>();
     Currency currency = new Currency();

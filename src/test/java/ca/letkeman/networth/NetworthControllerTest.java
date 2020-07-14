@@ -109,7 +109,6 @@ class NetworthControllerTest {
 
       mockMvc.perform(get("/?category=short_term&type=asset","")
           .contentType("application/json")
-//          .param("sendWelcomeMail", "true")
           .content(objectMapper.writeValueAsString(lineItem)))
           .andExpect(status().isOk());
 
