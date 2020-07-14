@@ -343,9 +343,19 @@ class Intuit extends Component {
         const MainTable = () => {
             return (
                 <div>
-                    <h1>Tracking your Networth</h1>
-                    <div>Select Currency: <CurrencySelect moneySymbols={moneySymbols} /></div>
-                    Networth: $<span id="networth" style={{ display: "inline" }}>{networth.toFixed(2)}</span>
+                    <h1>Tracking your Net Worth</h1>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td colSpan="3"><div style={{ float: "right" }}><h5 style={{display: "inline"}} >Select Currency:</h5> <CurrencySelect moneySymbols={moneySymbols} /></div></td>
+                            </tr>
+                            <tr>
+                                <td width="55%"><h4>Net Worth:</h4></td>
+                                <td width="3%"><h4>$</h4></td>
+                                <td width="37%"><h4 id="networth" style={{ display: "inline" ,float:"right" }}>{networth.toFixed(2)}</h4></td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <AssetTable />
                     <LiabilityTable />
                 </div>
@@ -407,7 +417,7 @@ class Intuit extends Component {
                 <tr>
                     <td><h4>Total Liabilties:</h4></td>
                     <td valign="middle"><h4>$</h4></td>
-                    <td ><h4 style={{ float: "right" }}><span id="liabilityTotal">{liabilityTotal.toFixed(2)}</span></h4></td>
+                    <td ><h4 style={{ float: "right" }} id="liabilityTotal">{liabilityTotal.toFixed(2)}</h4></td>
                 </tr>
             </tfoot>
         </table>
@@ -470,7 +480,7 @@ class Intuit extends Component {
                     {String(val)}
                 </span>
                 <span id={errorID} style={{ display: "none" }}>
-                    <br />My custom message
+                    <br />Invalid Value
                     <br />Preivous Value: <span id={pvID}> {val} </span>
                 </span>
             </p>
