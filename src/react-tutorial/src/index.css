@@ -491,6 +491,11 @@ select::-ms-expand {
   }
 }
 
+.elmError{
+  color:  #d33c40;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1), 0 0 6px #f4cecf;
+}
+
 input.has-error, input.has-error:hover, input.has-error:focus, input.has-error:active {
   border: 1px solid #d33c40;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1), 0 0 6px #f4cecf;

@@ -479,9 +479,9 @@ class Intuit extends Component {
                 >
                     {String(val)}
                 </span>
-                <span id={errorID} style={{ display: "none" }}>
-                    <br />Invalid Value
-                    <br />Preivous Value: <span id={pvID}> {val} </span>
+                <span id={errorID} style={{ display: "none" }} className={"elmError"}>
+                    <br />Invalid Value - Previous Value: <br/>
+                    <span id={pvID}> {val} </span>
                 </span>
             </p>
         )
