@@ -461,7 +461,7 @@ class Intuit extends Component {
     }
 
     createInlineEditor(props, state) {
-        const { val, elmClass, elmID, dsName, index } = props
+        const { val, elmID, dsName, index } = props
 
         let errorID = 'error' + elmID
         let pvID = 'pv' + elmID
@@ -470,7 +470,6 @@ class Intuit extends Component {
                 <span
                     contentEditable="true"
                     id={elmID}
-                    className={elmClass}
                     dataname={dsName}
                     suppressContentEditableWarning={true}
                     onInput={e => this.handleOnInput(e.currentTarget.textContent, elmID, index, dsName, state)}
@@ -561,12 +560,12 @@ class Intuit extends Component {
             }
             return <tr key={index}>
                 <td width="60%">
-                    <InlineEditor val={tempLabel} elmClass="entryLabel" elmType="text" elmID={"edit-" + entry.uuid} dsName={dataSetName} index={index} />
+                    <InlineEditor val={tempLabel} elmID={"edit-" + entry.uuid} dsName={dataSetName} index={index} />
                 </td>
                 <td width="3%" style={{ verticalAlign: "top" }}><div>$</div></td>
                 <td width="37%">
                     <div style={{ float: "right" }}>
-                        <InlineEditor val={tempNum} elmClass="editView" elmType="number" elmID={entry.uuid} index={index} dsName={dataSetName} />
+                        <InlineEditor val={tempNum} elmID={entry.uuid} index={index} dsName={dataSetName} />
                     </div>
                 </td>
                 <td>
