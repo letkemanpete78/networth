@@ -98,24 +98,6 @@ public class NetworthController {
     return getDataString(type, category);
   }
 
-  @RequestMapping(value = "/getrate",
-      method = RequestMethod.GET,
-      produces = {MediaType.APPLICATION_JSON_VALUE},
-      consumes = MediaType.ALL_VALUE)
-  public String getRate(@RequestParam(value = "symbol", defaultValue = "CAD") String symbol) {
-    /*
-    sample response
-    {"id":1,"symbol":"CAD","rate":1.0}
-     */
-    ObjectMapper mapperObj = new ObjectMapper();
-    try {
-      return mapperObj.writeValueAsString(getRateBySymbol(symbol));
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-      return "error";
-    }
-  }
-
   @RequestMapping(value = "/currencies",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE},

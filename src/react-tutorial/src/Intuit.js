@@ -239,6 +239,7 @@ class Intuit extends Component {
         }
 
         if (currency === 'undefined'){
+            // currency not set, so set it
             currency = this.state.currencyHistory[0]
             this.setState({
                 currency: this.state.currencyHistory[0]
