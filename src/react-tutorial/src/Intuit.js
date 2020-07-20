@@ -158,6 +158,7 @@ class Intuit extends Component {
                 if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
+                        currencyHistory : [result[0].currency]
                     })
                 }
                 this.setState({
@@ -173,6 +174,7 @@ class Intuit extends Component {
                 if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
+                        currencyHistory : [result[0].currency]
                     })
                 }
                 this.setState({
@@ -188,6 +190,7 @@ class Intuit extends Component {
                 if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
+                        currencyHistory : [result[0].currency]
                     })
                 }
                 this.setState({
@@ -203,6 +206,7 @@ class Intuit extends Component {
                 if ((result.length !== 0) && (typeof result[0].currency !== 'undefined')) {
                     this.setState({
                         selectedCurrency: result[0].currency,
+                        currencyHistory : [result[0].currency]
                     })
                 }
                 this.setState({
@@ -382,8 +386,6 @@ class Intuit extends Component {
                     selectedCurrency: moneySymbols[i],
                 })
                 tempItem = moneySymbols[i]
-                console.log("moneySymbols[i]")
-                console.log(moneySymbols[i])
             }
         }
 
