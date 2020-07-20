@@ -72,7 +72,6 @@ class Intuit extends Component {
     }
 
     handleAddAssetShortRow = () => {
-        console.log("handleAddAssetShortRow")
         const item = {
             label: "",
             value: 0.00,
@@ -87,7 +86,6 @@ class Intuit extends Component {
     };
 
     handleAddAssetLongRow = () => {
-        console.log("handleAddAssetLongRow")
         const item = {
             label: "",
             value: 0.00,
@@ -102,7 +100,6 @@ class Intuit extends Component {
     };
 
     handleAddLiabilityShortRow = () => {
-        console.log("handleAddLiabilityShortRow")
         const item = {
             label: "",
             value: 0.00,
@@ -117,7 +114,6 @@ class Intuit extends Component {
     };
 
     handleAddLiabilityLongRow = () => {
-        console.log("handleAddLiabilityLongRow")
         const item = {
             label: "",
             value: 0.00,
