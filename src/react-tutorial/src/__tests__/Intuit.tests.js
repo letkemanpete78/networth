@@ -1,10 +1,27 @@
 import React from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react'
-import '../Intuit';
 import Intuit from '../Intuit';
+
+
+// Enzyme.configure({ adapter: new Adapter() });
 
 test('App works', () => {
     const { container } = render(<Intuit />)
+})
+
+test('has required button titles',() =>{
+    const { container} = render (
+        <Intuit />
+    )
+
+    const shortTermAssetButton = "Add Short Term Asset"
+    expect(screen.getByText (shortTermAssetButton)).toBeDefined
+    const longTermAssetButton = "Add Long Term Asset"
+    expect(screen.getByText (longTermAssetButton)).toBeDefined
+    const longTermLiabilityButton = "Add Long Term Debt"
+    expect(screen.getByText (longTermLiabilityButton)).toBeDefined
+    const shortTermLiabilityButton = "Add Short Term Liability"
+    expect(screen.getByText (shortTermLiabilityButton)).toBeDefined
 })
 
 test('has required titles',() =>{
@@ -30,12 +47,4 @@ test('has required titles',() =>{
     const shortTermLiabiltyTitle = "Short Term Liabilties"
     expect(screen.getByText (shortTermLiabiltyTitle)).toBeDefined
 
-    const shortTermAssetButton = "Add Short Term Asset"
-    expect(screen.getByText (shortTermAssetButton)).toBeDefined
-    const longTermAssetButton = "Add Long Term Asset"
-    expect(screen.getByText (longTermAssetButton)).toBeDefined
-    const longTermLiabilityButton = "Add Long Term Debt"
-    expect(screen.getByText (longTermLiabilityButton)).toBeDefined
-    const shortTermLiabilityButton = "Add Short Term Liability"
-    expect(screen.getByText (shortTermLiabilityButtonw)).toBeDefined
 })
