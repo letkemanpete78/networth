@@ -485,8 +485,8 @@ class Intuit extends Component {
                     {String(val)}
                 </span>
                 <span id={errorID} style={{ display: "none" }} className={"elmError"}>
-                    <br />Invalid Value - Previous Value: <br/>
-                    <span id={pvID}> {val} </span>
+                    <br />Value must be a positive number
+                    <br/>Previous Value: <span id={pvID}> {val} </span>
                 </span>
             </p>
         )
@@ -517,7 +517,7 @@ class Intuit extends Component {
                     errorElm.style.display = "inline"
                 } else {
                     lineItems[index].value = value
-                    if (value !== 0) {
+                    if ((value !== 0) && (value > 0)){
                         currentElm.setAttribute("data-oldvalue", value)
                         document.getElementById("pv" + elmID).innerHTML = Number(value).toFixed(2)
                     } else {
