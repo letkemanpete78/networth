@@ -360,7 +360,7 @@ class Intuit extends Component {
                             <tr>
                                 <td width="55%"><h4>Net Worth:</h4></td>
                                 <td width="3%"><h4>$</h4></td>
-                                <td width="37%"><h4 id="networth" style={{ display: "inline" ,float:"right" }}>{networth.toFixed(2)}</h4></td>
+                                <td width="37%"><h4 id="networth" style={{ display: "inline" ,float:"right" }}>{this.thousands_separators(networth.toFixed(2))}</h4></td>
                             </tr>
                         </tbody>
                     </table>
@@ -423,7 +423,7 @@ class Intuit extends Component {
                 <tr>
                     <td><h4>Total Liabilties:</h4></td>
                     <td valign="middle"><h4>$</h4></td>
-                    <td ><h4 style={{ float: "right" }} id="liabilityTotal">{liabilityTotal.toFixed(2)}</h4></td>
+                    <td ><h4 style={{ float: "right" }} id="liabilityTotal">{this.thousands_separators(liabilityTotal.toFixed(2))}</h4></td>
                 </tr>
             </tfoot>
         </table>
@@ -460,7 +460,7 @@ class Intuit extends Component {
                 <tr>
                     <td><h4>Total Assets:</h4></td>
                     <td valign="middle"><h4>$</h4></td>
-                    <td><h4 style={{ float: "right" }}><span id="assetTotal">{assetTotal.toFixed(2)}</span></h4></td>
+                    <td><h4 style={{ float: "right" }}><span id="assetTotal">{this.thousands_separators(assetTotal.toFixed(2))}</span></h4></td>
                 </tr>
             </tfoot>
         </table>
@@ -562,7 +562,7 @@ class Intuit extends Component {
                 tempLabel = entry.label
             }
             if (!isNaN(entry.value)) {
-                tempNum = Number(entry.value).toFixed(2)
+                tempNum = this.thousands_separators(Number(entry.value).toFixed(2))
             }
             return <tr key={index}>
                 <td width="60%">
@@ -580,6 +580,13 @@ class Intuit extends Component {
             </tr>
         })
     }
+
+    thousands_separators(num){
+      var num_parts = num.toString().split(".");
+      num_parts[0] = num_parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return num_parts.join(".");
+    }
+  
 
     libilityUpdater(liabilityDataShort, liabilityDataLong) {
         const shortLiabilitysTotal = liabilityDataShort.reduce((totalLiabilitys, liability) => totalLiabilitys + parseFloat(liability.value, 10), 0).toFixed(2)
