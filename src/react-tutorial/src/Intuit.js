@@ -247,8 +247,11 @@ class Intuit extends Component {
         }
 
         assetDataShort.forEach(function (asset) {
+            console.log("pete")
+            console.log(asset.value)
             asset.currency = currency
             asset.value = asset.value * oldRate / newRate
+            console.log(asset.value)
         })
         assetDataLong.forEach(function (asset) {
             asset.currency = currency
